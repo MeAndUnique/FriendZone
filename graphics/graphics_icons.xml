@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- 
+  Please see the license file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<icon name="char_cohorts" file="graphics/icons/char_race.png" />
+</root>

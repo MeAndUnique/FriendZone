@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="charsheet" merge="join">
+		<sheetdata>
+
+			<sub_charsheet name="notes">
+				<class>charsheet_notes_and_logs</class>
+			</sub_charsheet>
+			<sub_charsheet name="logs">
+				<class>charsheet_cohorts</class>
+			</sub_charsheet>
+
+			<tabs_charsheet name="tabs">
+				<script>
+					function onInit()
+						if tab and type(tab) == "table" then
+							for index,tabInfo in ipairs(tab) do
+								if (type(tabInfo) == "table") and (tabInfo.subwindow[1] == "logs") then
+									tabInfo.icon[1] = "tab_cohorts";
+								end
+							end
+						end
+
+						super.onInit();
+					end
+				</script>
+				<!--<tab>
+					<icon>tab_main</icon>
+					<subwindow>main</subwindow>
+				</tab>
+				<tab>
+					<icon>tab_skills</icon>
+					<subwindow>skills</subwindow>
+				</tab>
+				<tab>
+					<icon>tab_abilities</icon>
+					<subwindow>abilities</subwindow>
+				</tab>
+				<tab>
+					<icon>tab_inventory</icon>
+					<subwindow>inventory</subwindow>
+				</tab>
+				<tab>
+					<icon>tab_notes</icon>
+					<subwindow>notes</subwindow>
+				</tab>
+				<tab>
+					<icon>tab_log</icon>
+					<subwindow>logs</subwindow>
+				</tab>
+				<tab>
+					<icon>tab_actions</icon>
+					<subwindow>actions</subwindow>
+				</tab>
+				<activate>1</activate> -->
+			</tabs_charsheet>
+		</sheetdata>
+	</windowclass>
+</root>

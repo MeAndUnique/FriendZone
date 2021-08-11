@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="charsheet_notes_and_logs">
+		<script>
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass, sRecord = draginfo.getShortcutData();
+
+					if StringManager.contains({"ref_adventure"}, sClass) then
+						CharManager.addInfoDB(getDatabaseNode(), sClass, sRecord);
+						return true;
+					end
+				end
+			end
+		</script>
+		<sheetdata>
+			<button_iedit name="logs_iedit">
+				<anchored position="insidebottomright" offset="10,10" />
+				<tooltip textres="char_logs_tooltip_edit" />
+				<script>
+					function onValueChanged()
+						local bEditMode = (getValue() == 1);
+						
+						window.contents.subwindow.logs.subwindow.adventurelist.update();
+					end
+				</script>
+			</button_iedit>
+
+			<subwindow name="contents">
+				<anchored>
+					<top offset="0" />
+					<bottom offset="-30" />
+					<left offset="0" />
+					<right offset="-15" />
+				</anchored>
+				<class>charsheet_notes_logs_contents</class>
+				<activate />
+				<fastinit />
+			</subwindow>
+			<scrollbar_charcontents />
+		</sheetdata>
+	</windowclass>
+
+	<!-- charsheet_log_contents -->
+	<windowclass name="charsheet_notes_logs_contents">
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+			
+			<subwindow name="notes">
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="0" />
+					<left />
+					<right />
+				</anchored>
+				<class>charsheet_notes_contents</class>
+				<activate />
+				<fastinit />
+			</subwindow>
+			
+			<subwindow name="logs">
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="0" />
+					<left />
+					<right />
+				</anchored>
+				<script>
+					function onInit()
+						logs_iedit = window.parentcontrol.window.logs_iedit;
+					end
+				</script>
+				<class>charsheet_logs_contents</class>
+				<activate />
+				<fastinit />
+			</subwindow>
+		</sheetdata>
+	</windowclass>
+</root>

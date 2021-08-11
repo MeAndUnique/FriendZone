@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+MIT License
+
+Copyright (c) 2021 MeAndUnique
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+-->
+
+<root release="3.0" version="3">
+	<properties>
+		<name>Feature: Friend Zone</name>
+		<version>0.1</version>
+		<author>MeAndUnique</author>
+		<description>Adds support for companions of any sort.</description>
+		<loadorder>150</loadorder>
+	</properties>
+
+	<base>
+		<script name="FriendZone" file="scripts/friendzone.lua" />
+		<script name="ActorManagerFZ" file="scripts/manager_actor_fz.lua" />
+		<script name="CharManagerFZ" file="scripts/manager_char_fz.lua" />
+		<script name="CombatManagerFZ" file="scripts/manager_combat_fz.lua" />
+
+		<includefile source="campaign/record_char.xml" />
+		<includefile source="campaign/record_char_notes_and_logs.xml" />
+		<includefile source="campaign/record_char_cohorts.xml" />
+		<includefile source="ct/ct_host.xml" />
+
+		<includefile source="strings/strings.xml" />
+		<includefile source="graphics/graphics_icons.xml" />
+		<includefile source="graphics/graphics_tabs.xml" />
+	</base>
+
+	<announcement text="Friend Zone v0.1 by MeAndUnique." font="emotefont" />
+
+</root>

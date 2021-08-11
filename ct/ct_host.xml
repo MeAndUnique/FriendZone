@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- 
+  Please see the license file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="ct_entry" merge="join">
+		<script file="ct/scripts/ct_entry.lua" />
+	</windowclass>
+</root>
