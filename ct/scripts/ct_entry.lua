@@ -30,7 +30,7 @@ function linkNPCFields()
 		-- TODO CA compatibility
 		hptotal.setLink(nodeChar.createChild("hp", "number"));
 		hptemp.setLink(nodeChar.createChild("hptemporary", "number"));
-		wounds.setLink(nodeChar.createChild("hpwounds", "number"));
+		wounds.setLink(nodeChar.createChild("wounds", "number"));
 		deathsavesuccess.setLink(nodeChar.createChild("deathsavesuccess", "number"));
 		deathsavefail.setLink(nodeChar.createChild("deathsavefail", "number"));
 
@@ -59,7 +59,7 @@ function linkUnitFields()
 
 		hptotal.setLink(nodeUnit.createChild("casualties", "number"));
 		hptemp.setLink(nodeUnit.createChild("hptemporary", "number"));
-		wounds.setLink(nodeUnit.createChild("hpwounds", "number"));
+		wounds.setLink(nodeUnit.createChild("wounds", "number"));
 
 		type.setLink(nodeUnit.createChild("race", "string"));
 		size.setLink(nodeUnit.createChild("size", "string"));
