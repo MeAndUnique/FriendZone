@@ -49,8 +49,10 @@ SOFTWARE.
 		<includefile source="strings/strings.xml" />
 		<includefile source="graphics/graphics_icons.xml" />
 		<includefile source="graphics/graphics_tabs.xml" />
+		
+		<icon name="FriendZone_icon" file="graphics/icons/FriendZone.png" />
 	</base>
 
-	<announcement text="Friend Zone v0.1 by MeAndUnique." font="emotefont" />
+	<announcement text="Friend Zone v0.1 by MeAndUnique." icon="FriendZone_icon" font="emotefont" />
 
 </root>
