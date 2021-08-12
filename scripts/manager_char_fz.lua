@@ -2,12 +2,12 @@ local addInfoDBOriginal;
 
 --todo remove this file?
 function onInit()
-	addInfoDBOriginal = CharManager.addInfoDB;
-	CharManager.addInfoDB = addInfoDB
+	-- addInfoDBOriginal = CharManager.addInfoDB;
+	-- CharManager.addInfoDB = addInfoDB;
 end
 
 function addInfoDB(nodeChar, sClass, sRecord)
-	local result = addInfoDBOriginal(sIdentity, draginfo);
+	local result = addInfoDBOriginal(nodeChar, sClass, sRecord);
 	--todo stuff i need
 	if nodeChar and not result then
 		if sClass == "npc" then
