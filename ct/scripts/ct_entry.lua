@@ -47,7 +47,7 @@ function linkNPCFields()
 
 		init.setLink(nodeChar.createChild("abilities.dexterity.bonus", "number"), true);
 		ac.setLink(nodeChar.createChild("ac", "number"), true);
-		speed.setLink(nodeChar.createChild("speed", "number"), true);
+		speed.setLink(nodeChar.createChild("speed", "string"), true);
 	end
 end
 
