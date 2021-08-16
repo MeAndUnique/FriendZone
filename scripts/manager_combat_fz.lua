@@ -30,4 +30,6 @@ function addUnit(sClass, nodeUnit, sName)
 			DB.setValue(nodeEntry, "friendfoe", "string", "friend");
 		end
 	end
+
+	return nodeEntry;
 end
