@@ -30,7 +30,7 @@ Icons made by Freepik from www.flaticon.com
 <root release="3.0" version="3">
 	<properties>
 		<name>Feature: Friend Zone</name>
-		<version>0.3</version>
+		<version>0.4</version>
 		<author>MeAndUnique</author>
 		<description>Adds support for companions of any sort.</description>
 		<loadorder>150</loadorder>
@@ -54,6 +54,6 @@ Icons made by Freepik from www.flaticon.com
 		<icon name="FriendZone_icon" file="graphics/icons/FriendZone.png" />
 	</base>
 
-	<announcement text="Friend Zone v0.3 by MeAndUnique." icon="FriendZone_icon" font="emotefont" />
+	<announcement text="Friend Zone v0.4 by MeAndUnique." icon="FriendZone_icon" font="emotefont" />
 
 </root>
