@@ -18,6 +18,7 @@
 		--CR vs lvl?
 
 local onShortcutDropOriginal;
+local notifyAddHolderOwnershipOriginal;
 
 function onInit()
 	if Session.IsHost then
@@ -25,6 +26,11 @@ function onInit()
 		CharacterListManager.registerDropHandler(onShortcutDrop);
 		onShortcutDropOriginal = CharacterListManager.onShortcutDrop;
 		CharacterListManager.onShortcutDrop = onShortcutDrop;
+	end
+
+	if AssistantGMManager then
+		notifyAddHolderOwnershipOriginal = AssistantGMManager.NotifyAddHolderOwnership;
+		AssistantGMManager.NotifyAddHolderOwnership = notifyAddHolderOwnership;
 	end
 end
 
@@ -84,9 +90,22 @@ function isCohort(vRecord)
 	local sType = type(vRecord);
 	if sType == "databasenode" then
 		return StringManager.startsWith(vRecord.getPath(), "charsheet");
+	elseif sType == "table" then
+		return StringManager.startsWith(vRecord.sCreatureNode, "charsheet");
 	elseif sType == "string" then
 		return StringManager.startsWith(vRecord, "charsheet");
 	else
 		return false;
+	end
+end
+
+function notifyAddHolderOwnership(node, sUserName, bOwner, bForceAccessRemoval)
+	local rActor = ActorManager.resolveActor(node);
+	if isCohort(rActor) then
+		if bOwner then
+			ChatManager.SystemMessage(Interface.getString("assistant_gm_cohort_ownership"));
+		end
+	else
+		notifyAddHolderOwnershipOriginal(node, sUserName, bOwner, bForceAccessRemoval);
 	end
 end

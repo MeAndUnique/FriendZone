@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
 	<string name="char_cohorts_label_cohorts">COHORTS</string>
-	
 	<string name="char_cohorts_label_units">UNITS</string>
+
+	<string name="assistant_gm_cohort_ownership">Unable reassign ownership of cohort.</string>
 </root>
