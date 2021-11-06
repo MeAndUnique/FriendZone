@@ -30,7 +30,7 @@ Icons made by Freepik from www.flaticon.com
 <root release="3.0" version="3">
 	<properties>
 		<name>Feature: Friend Zone</name>
-		<version>0.4</version>
+		<version>0.5</version>
 		<author>MeAndUnique</author>
 		<description>Adds support for companions of any sort.</description>
 		<loadorder>150</loadorder>
@@ -45,6 +45,7 @@ Icons made by Freepik from www.flaticon.com
 		<includefile source="campaign/record_char.xml" />
 		<includefile source="campaign/record_char_notes_and_logs.xml" />
 		<includefile source="campaign/record_char_cohorts.xml" />
+		<includefile source="campaign/record_npc.xml" />
 		<includefile source="ct/ct_host.xml" />
 
 		<includefile source="strings/strings.xml" />
@@ -54,6 +55,6 @@ Icons made by Freepik from www.flaticon.com
 		<icon name="FriendZone_icon" file="graphics/icons/FriendZone.png" />
 	</base>
 
-	<announcement text="Friend Zone v0.4 by MeAndUnique." icon="FriendZone_icon" font="emotefont" />
+	<announcement text="Friend Zone v0.5 by MeAndUnique." icon="FriendZone_icon" font="emotefont" />
 
 </root>
