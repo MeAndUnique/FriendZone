@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="npc" merge="join">
+		<sheetdata>
+			<subwindow_record name="cohorts">
+				<class>charsheet_cohorts</class>
+				<invisible />
+			</subwindow_record>
+
+			<scrollbar_record>
+				<target>cohorts</target>
+			</scrollbar_record>
+
+			<tabs_charsheet name="tabs">
+				<script>
+					function onInit()
+						super.onInit();
+						addTab("cohorts", "tab_cohorts", false);
+					end
+				</script>
+			</tabs_charsheet>
+		</sheetdata>
+	</windowclass>
+</root>

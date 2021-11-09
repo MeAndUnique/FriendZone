@@ -109,3 +109,8 @@ function notifyAddHolderOwnership(node, sUserName, bOwner, bForceAccessRemoval)
 		notifyAddHolderOwnershipOriginal(node, sUserName, bOwner, bForceAccessRemoval);
 	end
 end
+
+function getCommanderNode(vCohort)
+	local nodeCohort = ActorManager.getCreatureNode(vCohort);
+	return DB.getChild(nodeCohort, "...");
+end

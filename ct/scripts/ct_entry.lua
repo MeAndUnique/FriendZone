@@ -11,8 +11,6 @@ function onLinkChanged()
 	if FriendZone.isCohort(sRecord) then
 		if sClass == "npc" then
 			linkNPCFields();
-		elseif sClass == "reference_unit" then
-			linkUnitFields();
 		end
 		name.setLine(false);
 	end
@@ -48,28 +46,5 @@ function linkNPCFields()
 		init.setLink(nodeChar.createChild("abilities.dexterity.bonus", "number"), true);
 		ac.setLink(nodeChar.createChild("ac", "number"), true);
 		speed.setLink(nodeChar.createChild("speed", "string"), true);
-	end
-end
-
-function linkUnitFields()
-	local nodeUnit = link.getTargetDatabaseNode();
-	if nodeUnit then
-		name.setLink(nodeUnit.createChild("name", "string"), true);
-		senses.setLink(nodeUnit.createChild("senses", "string"), true);
-
-		hptotal.setLink(nodeUnit.createChild("casualties", "number"));
-		hptemp.setLink(nodeUnit.createChild("hptemporary", "number"));
-		wounds.setLink(nodeUnit.createChild("wounds", "number"));
-
-		type.setLink(nodeUnit.createChild("race", "string"));
-		size.setLink(nodeUnit.createChild("size", "string"));
-		alignment.setLink(nodeUnit.createChild("alignment", "string"));
-		
-		attack.setLink(nodeUnit.createChild("abilities.attack", "number"), true);
-		power.setLink(nodeUnit.createChild("abilities.power", "number"), true);
-		morale.setLink(nodeUnit.createChild("abilities.morale", "number"), true);
-		command.setLink(nodeUnit.createChild("abilities.command", "number"), true);
-		defense.setLink(nodeUnit.createChild("abilities.defense", "number"), true);
-		toughness.setLink(nodeUnit.createChild("abilities.toughness", "number"), true);
 	end
 end

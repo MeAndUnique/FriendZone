@@ -13,7 +13,7 @@
 				if KingdomsAndWarfare then
 					contents.subwindow.unitstitle.setVisible(true);
 					contents.subwindow.unitlist.setVisible(true);
-					contents.subwindow.unitlist_iadd.setVisible(true);
+					contents.subwindow.unitlist_iadd.setVisible(not getDatabaseNode().isReadOnly());
 				end
 			end
 			function onDrop(x, y, draginfo)

@@ -30,35 +30,6 @@
 						super.onInit();
 					end
 				</script>
-				<!--<tab>
-					<icon>tab_main</icon>
-					<subwindow>main</subwindow>
-				</tab>
-				<tab>
-					<icon>tab_skills</icon>
-					<subwindow>skills</subwindow>
-				</tab>
-				<tab>
-					<icon>tab_abilities</icon>
-					<subwindow>abilities</subwindow>
-				</tab>
-				<tab>
-					<icon>tab_inventory</icon>
-					<subwindow>inventory</subwindow>
-				</tab>
-				<tab>
-					<icon>tab_notes</icon>
-					<subwindow>notes</subwindow>
-				</tab>
-				<tab>
-					<icon>tab_log</icon>
-					<subwindow>logs</subwindow>
-				</tab>
-				<tab>
-					<icon>tab_actions</icon>
-					<subwindow>actions</subwindow>
-				</tab>
-				<activate>1</activate> -->
 			</tabs_charsheet>
 		</sheetdata>
 	</windowclass>
