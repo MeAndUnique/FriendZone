@@ -30,17 +30,17 @@ Icons made by Freepik from www.flaticon.com
 <root release="3.0" version="3">
 	<properties>
 		<name>Feature: Friend Zone</name>
-		<version>0.5</version>
+		<version>0.6</version>
 		<author>MeAndUnique</author>
 		<description>Adds support for companions of any sort.</description>
 		<loadorder>150</loadorder>
 	</properties>
 
 	<base>
-		<script name="FriendZone" file="scripts/friendzone.lua" />
 		<script name="ActorManagerFZ" file="scripts/manager_actor_fz.lua" />
 		<script name="CharManagerFZ" file="scripts/manager_char_fz.lua" />
 		<script name="CombatManagerFZ" file="scripts/manager_combat_fz.lua" />
+		<script name="FriendZone" file="scripts/friendzone.lua" />
 
 		<includefile source="campaign/record_char.xml" />
 		<includefile source="campaign/record_char_notes_and_logs.xml" />
@@ -55,6 +55,6 @@ Icons made by Freepik from www.flaticon.com
 		<icon name="FriendZone_icon" file="graphics/icons/FriendZone.png" />
 	</base>
 
-	<announcement text="Friend Zone v0.5 by MeAndUnique." icon="FriendZone_icon" font="emotefont" />
+	<announcement text="Friend Zone v0.6 by MeAndUnique." icon="FriendZone_icon" font="emotefont" />
 
 </root>

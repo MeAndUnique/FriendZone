@@ -57,10 +57,9 @@ function addCohort(nodeChar, nodeNPC)
 	end
 
 	DB.copyNode(nodeNPC, nodeNewCohort);
+	DB.setValue(nodeNewCohort, "hptotal", "number", DB.getValue(nodeNewCohort, "hp", 0));
 
 	--todo stats
-	-- DB.setValue(nodeNewCohort, "hp.total", "number", DB.getValue(nodeNewCohort, "hp", 0));
-	--hp
 	--ac
 	--speed
 	--??

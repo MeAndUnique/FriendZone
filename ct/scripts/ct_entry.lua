@@ -26,8 +26,12 @@ function linkNPCFields()
 		senses.setLink(nodeChar.createChild("senses", "string"), true);
 
 		-- TODO CA compatibility
-		hptotal.setLink(nodeChar.createChild("hp", "number"));
-		hptemp.setLink(nodeChar.createChild("hptemporary", "number"));
+		if ManagerHp then
+			hptotal.setLink(nodeChar.createChild("hptotal", "number"));
+		else
+			hptotal.setLink(nodeChar.createChild("hp", "number"));
+		end
+		hptemp.setLink(nodeChar.createChild("hptemp", "number"));
 		wounds.setLink(nodeChar.createChild("wounds", "number"));
 		deathsavesuccess.setLink(nodeChar.createChild("deathsavesuccess", "number"));
 		deathsavefail.setLink(nodeChar.createChild("deathsavefail", "number"));
