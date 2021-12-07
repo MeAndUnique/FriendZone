@@ -27,4 +27,26 @@
 			</tabs_charsheet>
 		</sheetdata>
 	</windowclass>
+
+	<windowclass name="npc_combat" merge="join">
+		<script file="campaign/scripts/npc_main.lua" />
+		<sheetdata>
+			<number_column name="hp">
+				<script>
+					function onInit()
+						registerMenuItem(Interface.getString("menu_reparse_hitpoints"), "spell_heal", 3);
+					end
+					function onMenuSelection(selection)
+						if selection == 3 then
+							HpManagerFz.updateNpcHitPoints(window.getDatabaseNode());
+						end
+					end
+				</script>
+			</number_column>
+
+			<string_columnh name="skills" >
+				<script file="campaign/scripts/npc_skill.lua" />
+			</string_columnh>
+		</sheetdata>
+	</windowclass>
 </root>

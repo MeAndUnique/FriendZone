@@ -21,28 +21,27 @@ local onShortcutDropOriginal;
 local notifyAddHolderOwnershipOriginal;
 
 function onInit()
-	if Session.IsHost then
-		-- todo move to specific manager
-		CharacterListManager.registerDropHandler(onShortcutDrop);
-		onShortcutDropOriginal = CharacterListManager.onShortcutDrop;
-		CharacterListManager.onShortcutDrop = onShortcutDrop;
-	end
-
 	if AssistantGMManager then
 		notifyAddHolderOwnershipOriginal = AssistantGMManager.NotifyAddHolderOwnership;
 		AssistantGMManager.NotifyAddHolderOwnership = notifyAddHolderOwnership;
 	end
+	if Session.IsHost then
+		DB.addHandler("charsheet.*.level", "onUpdate", onLevelChanged)
+	end
 end
 
-function onShortcutDrop(sIdentity, draginfo)
-	--todo stuff i need
-	local sClass, sRecord = draginfo.getShortcutData();
-	local nodeSource = draginfo.getDatabaseNode();
-	if nodesource and (sClass == "npc") then
-
+function onClose()
+	if Session.IsHost then
+		DB.removeHandler("charsheet.*.level", "onUpdate", onLevelChanged)
 	end
+end
 
-	return onShortcutDropOriginal(sIdentity, draginfo);
+
+function onLevelChanged(nodeLevel)
+	local nodeChar = nodeLevel.getChild("..");
+	for _,nodeCohort in pairs(DB.getChildren(nodeChar, "cohorts")) do
+		levelUpCohort(nodeCohort);
+	end
 end
 
 function addCohort(nodeChar, nodeNPC)
@@ -112,4 +111,11 @@ end
 function getCommanderNode(vCohort)
 	local nodeCohort = ActorManager.getCreatureNode(vCohort);
 	return DB.getChild(nodeCohort, "...");
+end
+
+function levelUpCohort(nodeCohort)
+	if HpManager then
+		HpManager.updateNpcHitDice(nodeCohort);
+	end
+	HpManagerFZ.updateNpcHitPoints(nodeCohort);
 end

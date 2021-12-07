@@ -19,14 +19,12 @@ function onLinkChanged()
 end
 
 function linkNPCFields()
-	--todo maybe remove this
 	local nodeChar = link.getTargetDatabaseNode();
 	if nodeChar then
 		name.setLink(nodeChar.createChild("name", "string"), true);
 		senses.setLink(nodeChar.createChild("senses", "string"), true);
 
-		-- TODO CA compatibility
-		if ManagerHp then
+		if HpManager then
 			hptotal.setLink(nodeChar.createChild("hptotal", "number"));
 		else
 			hptotal.setLink(nodeChar.createChild("hp", "number"));
