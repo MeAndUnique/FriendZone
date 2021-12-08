@@ -6,8 +6,10 @@
 local getNpcHitDiceOriginal;
 
 function onInit()
-	getNpcHitDiceOriginal = HpManager.getNpcHitDice;
-	HpManager.getNpcHitDice = getNpcHitDice;
+	if HpManager then
+		getNpcHitDiceOriginal = HpManager.getNpcHitDice;
+		HpManager.getNpcHitDice = getNpcHitDice;
+	end
 end
 
 function getNpcHitDice(nodeNPC)

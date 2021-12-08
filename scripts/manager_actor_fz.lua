@@ -4,12 +4,20 @@
 --
 
 local getActorRecordTypeFromPathOriginal;
+local getTypeAndNodeOriginal;
+local getSaveOriginal;
 local getDefenseValueOriginal;
 
 function onInit()
 	getActorRecordTypeFromPathOriginal = ActorManager.getActorRecordTypeFromPath;
 	ActorManager.getActorRecordTypeFromPath = getActorRecordTypeFromPath;
-	
+
+	getTypeAndNodeOriginal = ActorManager.getTypeAndNode;
+	ActorManager.getTypeAndNode = getTypeAndNode;
+
+	getSaveOriginal = ActorManager5E.getSave;
+	ActorManager5E.getSave = getSave;
+
 	getDefenseValueOriginal = ActorManager5E.getDefenseValue;
 	ActorManager5E.getDefenseValue = getDefenseValue;
 end
@@ -24,6 +32,42 @@ function getActorRecordTypeFromPath(sActorNodePath)
 		end
 	end
 	return result;
+end
+
+function getTypeAndNode(v)
+	local rActor = ActorManager.resolveActor(v);
+	if not rActor then 
+		return nil, nil; 
+	end
+
+	if not ActorManager.isPC(rActor) and FriendZone.isCohort(rActor) then
+		local nodeCreature = ActorManager.getCreatureNode(rActor);
+		if nodeCreature and nodeCreature.isOwner() then 
+			return "npc", nodeCreature;
+		end
+	end
+
+	return getTypeAndNodeOriginal(rActor);
+end
+
+
+function getSave(rActor, sSave)
+	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
+	if not nodeActor then
+		return 0, false, false, "";
+	end
+
+	local nMod, bADV, bDIS, sAddText = getSaveOriginal(rActor, sSave);
+	if sNodeType ~= "pc" and FriendZone.isCohort(rActor) then
+		local sSaves = DB.getValue(nodeActor, "savingthrows", "");
+		if sSaves:lower():match(sSave:sub(1,3):lower() .. "[^,]+%+ ?pb") then
+			local nodeCommander = FriendZone.getCommanderNode(rActor);
+			local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
+			nMod = nMod + nProfBonus;
+		end
+	end
+
+	return nMod, bADV, bDIS, sAddText;
 end
 
 function getDefenseValue(rAttacker, rDefender, rRoll)
