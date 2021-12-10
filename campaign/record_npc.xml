@@ -38,7 +38,7 @@
 					end
 					function onMenuSelection(selection)
 						if selection == 3 then
-							HpManagerFz.updateNpcHitPoints(window.getDatabaseNode());
+							HpManagerFZ.updateNpcHitPoints(window.getDatabaseNode());
 						end
 					end
 				</script>

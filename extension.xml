@@ -43,6 +43,7 @@ Icons made by Freepik from www.flaticon.com
 		<script name="CombatManagerFZ" file="scripts/manager_combat_fz.lua" />
 		<script name="FriendZone" file="scripts/friendzone.lua" />
 		<script name="HpManagerFZ" file="scripts/manager_hp_fz.lua" />
+		<script name="PowerManagerFZ" file="scripts/manager_power_fz.lua" />
 
 		<includefile source="campaign/record_char.xml" />
 		<includefile source="campaign/record_char_notes_and_logs.xml" />
