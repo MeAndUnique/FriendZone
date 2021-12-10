@@ -12,6 +12,8 @@ local ENCODING_TYPE_BASE = 10000;
 local ENCODING_OFFSET_BASE = 100;
 local ADD_PROFICIENCY_ENCODING = 1;
 local COMMANDER_GROUP_ENCODING = 2;
+local MULTIPLY_PROFICIENCY_ENCODING = 3;
+local DICE_PROFICIENCY_ENCODING = 4;
 
 function onInit()
 	--todo trigger reparsing (maybe needs to be in npc_main)
@@ -34,9 +36,13 @@ function parsePower(sPowerName, sPowerDesc, bPC, bMagic)
 	if nodeCohort then
 		sPowerDesc = sPowerDesc:gsub("[%+%-]%d+ %+ ?PB", encodeNumericAddition);
 		sPowerDesc = sPowerDesc:gsub("%d+d%d+ %+ ?PB", encodeDiceAddition);
-		sPowerDesc = sPowerDesc:gsub("DC %d+ [p%+]l?u?s? ?PB", encodeNumericReplacement);
+		sPowerDesc = sPowerDesc:gsub("a DC %d+ [p%+]l?u?s? ?PB", encodeNumericReplacement);
 		sPowerDesc = sPowerDesc:gsub("DC Player", encodeDcPlayerReplacement);
 		sPowerDesc = sPowerDesc:gsub("your .+ attack modifier", encodeAttackModifierReplacement);
+		sPowerDesc = sPowerDesc:gsub("extra PB ?%w* damage", encodeExtraDamage);
+		sPowerDesc = sPowerDesc:gsub("takes PB ?%w* damage", encodeExtraDamage);
+		sPowerDesc = sPowerDesc:gsub("%d+ times PB", encodeNumericMultiplication);
+		sPowerDesc = sPowerDesc:gsub("PBd%d+", encodeDiceMultiplication);
 	end
 
 	local aMasterAbilities = parsePowerOriginal(sPowerName, sPowerDesc, bPC, bMagic)
@@ -50,12 +56,13 @@ function parsePower(sPowerName, sPowerDesc, bPC, bMagic)
 
 			if rAbility.type == "attack" then
 				nOffset = nOffset + postProcessAttack(rAbility, nodeCohort, nodeCommander);
-			elseif rAbility.type == "damage" then
-				nOffset = nOffset + postProcessDamage(rAbility, nodeCohort, nodeCommander)
+			elseif rAbility.type == "damage" or  rAbility.type == "heal" then
+				nOffset = nOffset + postProcessDamageAndHeal(rAbility, nodeCohort, nodeCommander);
 			elseif rAbility.type == "powersave" then
-				nOffset = nOffset + postProcessSave(rAbility, nodeCohort, nodeCommander)
+				nOffset = nOffset + postProcessSave(rAbility, nodeCohort, nodeCommander);
+			elseif rAbility.type == "effect" then
+				nOffset = nOffset + postProcessEffect(rAbility, nodeCohort, nodeCommander);
 			end
-
 
 			rAbility.endpos = rAbility.endpos + nOffset;
 		end
@@ -92,13 +99,13 @@ function encodeDiceAddition(sMatch)
 end
 
 function encodeNumericReplacement(sMatch)
-	local nMod = tonumber(sMatch:match("^DC (%d+)"));
-	local nLengthDiff = sMatch:len() - 3 - 5;
+	local nMod = tonumber(sMatch:match("^a DC (%d+)"));
+	local nLengthDiff = sMatch:len() - 5 - 5;
 
 	nMod = nMod + ADD_PROFICIENCY_ENCODING * ENCODING_TYPE_BASE; -- Encode the fact that a swap has been made
 	nMod = nMod + ENCODING_OFFSET_BASE * nLengthDiff; -- Encode the offset difference
 
-	return "DC " .. nMod;
+	return "a DC " .. nMod;
 end
 
 function encodeDcPlayerReplacement(sMatch)
@@ -112,10 +119,34 @@ function encodeAttackModifierReplacement(sMatch)
 	return "+" .. nMod;
 end
 
+function encodeExtraDamage(sMatch)
+	return sMatch:gsub("PB", tostring((ADD_PROFICIENCY_ENCODING * ENCODING_TYPE_BASE) + ((ENCODING_OFFSET_BASE - 3) * ENCODING_OFFSET_BASE)));
+end
+
+function encodeNumericMultiplication(sMatch)
+	local nMod = tonumber(sMatch:match("^(%d+)"));
+	local nLengthDiff = sMatch:len() - 5;
+
+	nMod = nMod + MULTIPLY_PROFICIENCY_ENCODING * ENCODING_TYPE_BASE; -- Encode the fact that a swap has been made
+	nMod = nMod + ENCODING_OFFSET_BASE * nLengthDiff; -- Encode the offset difference
+
+	return tostring(nMod);
+end
+
+function encodeDiceMultiplication(sMatch)
+	local nMod = tonumber(sMatch:match("%d+$"));
+	local nLengthDiff = sMatch:len() - 5;
+
+	nMod = nMod + DICE_PROFICIENCY_ENCODING * ENCODING_TYPE_BASE; -- Encode the fact that a swap has been made
+	nMod = nMod + ENCODING_OFFSET_BASE * nLengthDiff; -- Encode the offset difference
+
+	return tostring(nMod);
+end
+
 function postProcessAttack(rAttack, nodeCohort, nodeCommander)
 	local nType = 0;
 	local nOffset = 0;
-	nType, nOffset, rAttack.modifier = decodeMetadata(rAttack.modifier, nodeCommander);
+	nType, nOffset, rAttack.modifier = decodeMetadata(rAttack.modifier);
 
 	if nType == ADD_PROFICIENCY_ENCODING then
 		local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
@@ -130,25 +161,34 @@ function postProcessAttack(rAttack, nodeCohort, nodeCommander)
 	return nOffset;
 end
 
-function postProcessDamage(rDamage, nodeCohort, nodeCommander)
+function postProcessDamageAndHeal(rDamage, nodeCohort, nodeCommander)
 	local nType = 0;
 	local nOffset = 0;
 	local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
 	for _, rClause in ipairs(rDamage.clauses) do
 		local nClauseOffset = 0;
-		nType, nClauseOffset, rClause.modifier = decodeMetadata(rClause.modifier, nodeCommander);
+		nType, nClauseOffset, rClause.modifier = decodeMetadata(rClause.modifier);
 		nOffset = nOffset + nClauseOffset;
 
 		if nType == ADD_PROFICIENCY_ENCODING then
 			rClause.modifier = rClause.modifier + nProfBonus;
+		elseif nType == MULTIPLY_PROFICIENCY_ENCODING then
+				rClause.modifier = rClause.modifier * nProfBonus;
+		elseif nType == DICE_PROFICIENCY_ENCODING then
+			rClause.dice = {};
+			for nCount=1,nProfBonus do
+				table.insert(rClause.dice, "d" .. rClause.modifier);
+			end
+			rClause.modifier = 0;
 		end
 	end
 	return nOffset
 end
 
 function postProcessSave(rSave, nodeCohort, nodeCommander)
+	local nType = 0;
 	local nOffset = 0;
-	nType, nOffset, rSave.savemod = decodeMetadata(rSave.savemod, nodeCommander);
+	nType, nOffset, rSave.savemod = decodeMetadata(rSave.savemod);
 
 	if nType == ADD_PROFICIENCY_ENCODING then
 		local nodePowerGroup = findCommanderPowerGroup(nodeCohort, nodeCommander);
@@ -165,6 +205,20 @@ function postProcessSave(rSave, nodeCohort, nodeCommander)
 		end
 	end
 
+	return nOffset;
+end
+
+function postProcessEffect(rEffect, nodeCohort, nodeCommander)
+	local nOffset = 0;
+	local sEncodedDamage = rEffect.sName:match("DMG: (%d%d%d%d%d)");
+	if sEncodedDamage then
+		local nType, nValue;
+		nType, nOffset, nValue = decodeMetadata(tonumber(sEncodedDamage));
+		if nType == ADD_PROFICIENCY_ENCODING then
+			local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
+			rEffect.sName = rEffect.sName:gsub(sEncodedDamage, tostring(nValue + nProfBonus));
+		end
+	end
 	return nOffset;
 end
 
