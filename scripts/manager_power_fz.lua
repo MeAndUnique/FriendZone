@@ -16,7 +16,6 @@ local MULTIPLY_PROFICIENCY_ENCODING = 3;
 local DICE_PROFICIENCY_ENCODING = 4;
 
 function onInit()
-	--todo trigger reparsing (maybe needs to be in npc_main)
 	parseNPCPowerOriginal = PowerManager.parseNPCPower;
 	PowerManager.parseNPCPower = parseNPCPower;
 

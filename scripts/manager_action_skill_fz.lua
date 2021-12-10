@@ -26,16 +26,3 @@ function performNPCRoll(draginfo, rActor, sSkill, nSkill)
 	performNPCRollOriginal(draginfo, rActor, sSkill, nSkill);
 	nCommanderProfBonus = 0;
 end
-
-function addUnit(sClass, nodeUnit, sName)
-	local nodeEntry = addUnitOriginal(sClass, nodeUnit, sName);
-	if nodeEntry then
-		local bIsCohort = FriendZone.isCohort(nodeUnit);
-		if bIsCohort then
-			DB.setValue(nodeEntry, "link", "windowreference", "reference_unit", nodeUnit.getPath());
-			DB.setValue(nodeEntry, "friendfoe", "string", "friend");
-		end
-	end
-
-	return nodeEntry;
-end

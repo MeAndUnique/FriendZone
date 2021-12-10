@@ -1,3 +1,8 @@
+-- 
+-- Please see the license.txt file included with this distribution for 
+-- attribution and copyright information.
+--
+
 --todo cleanup
 --add list for npcs on charsheet
 	--what should each item look like? PS as template?
@@ -13,9 +18,6 @@
 	--mulitples and naming?
 --add handler for PB changing
 	--add support for NPC stats that use PB
---add extra hp fields to cohort?
-	--or use charsheet
-		--CR vs lvl?
 
 local onShortcutDropOriginal;
 local notifyAddHolderOwnershipOriginal;
@@ -57,11 +59,6 @@ function addCohort(nodeChar, nodeNPC)
 
 	DB.copyNode(nodeNPC, nodeNewCohort);
 	DB.setValue(nodeNewCohort, "hptotal", "number", DB.getValue(nodeNewCohort, "hp", 0));
-
-	--todo stats
-	--ac
-	--speed
-	--??
 end
 
 function addUnit(nodeChar, nodeUnit)
