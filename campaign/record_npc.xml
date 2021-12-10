@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <!-- 
-  Please see the license.html file included with this distribution for 
+  Please see the license.txt file included with this distribution for 
   attribution and copyright information.
 -->
 
@@ -25,6 +25,28 @@
 					end
 				</script>
 			</tabs_charsheet>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_combat" merge="join">
+		<script file="campaign/scripts/npc_main.lua" />
+		<sheetdata>
+			<number_column name="hp">
+				<script>
+					function onInit()
+						registerMenuItem(Interface.getString("menu_reparse_hitpoints"), "spell_heal", 3);
+					end
+					function onMenuSelection(selection)
+						if selection == 3 then
+							HpManagerFZ.updateNpcHitPoints(window.getDatabaseNode());
+						end
+					end
+				</script>
+			</number_column>
+
+			<string_columnh name="skills" >
+				<script file="campaign/scripts/npc_skill.lua" />
+			</string_columnh>
 		</sheetdata>
 	</windowclass>
 </root>

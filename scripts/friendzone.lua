@@ -1,3 +1,8 @@
+-- 
+-- Please see the license.txt file included with this distribution for 
+-- attribution and copyright information.
+--
+
 --todo cleanup
 --add list for npcs on charsheet
 	--what should each item look like? PS as template?
@@ -13,36 +18,32 @@
 	--mulitples and naming?
 --add handler for PB changing
 	--add support for NPC stats that use PB
---add extra hp fields to cohort?
-	--or use charsheet
-		--CR vs lvl?
 
 local onShortcutDropOriginal;
 local notifyAddHolderOwnershipOriginal;
 
 function onInit()
-	if Session.IsHost then
-		-- todo move to specific manager
-		CharacterListManager.registerDropHandler(onShortcutDrop);
-		onShortcutDropOriginal = CharacterListManager.onShortcutDrop;
-		CharacterListManager.onShortcutDrop = onShortcutDrop;
-	end
-
 	if AssistantGMManager then
 		notifyAddHolderOwnershipOriginal = AssistantGMManager.NotifyAddHolderOwnership;
 		AssistantGMManager.NotifyAddHolderOwnership = notifyAddHolderOwnership;
 	end
+	if Session.IsHost then
+		DB.addHandler("charsheet.*.level", "onUpdate", onLevelChanged)
+	end
 end
 
-function onShortcutDrop(sIdentity, draginfo)
-	--todo stuff i need
-	local sClass, sRecord = draginfo.getShortcutData();
-	local nodeSource = draginfo.getDatabaseNode();
-	if nodesource and (sClass == "npc") then
-
+function onClose()
+	if Session.IsHost then
+		DB.removeHandler("charsheet.*.level", "onUpdate", onLevelChanged)
 	end
+end
 
-	return onShortcutDropOriginal(sIdentity, draginfo);
+
+function onLevelChanged(nodeLevel)
+	local nodeChar = nodeLevel.getChild("..");
+	for _,nodeCohort in pairs(DB.getChildren(nodeChar, "cohorts")) do
+		levelUpCohort(nodeCohort);
+	end
 end
 
 function addCohort(nodeChar, nodeNPC)
@@ -57,13 +58,7 @@ function addCohort(nodeChar, nodeNPC)
 	end
 
 	DB.copyNode(nodeNPC, nodeNewCohort);
-
-	--todo stats
-	-- DB.setValue(nodeNewCohort, "hp.total", "number", DB.getValue(nodeNewCohort, "hp", 0));
-	--hp
-	--ac
-	--speed
-	--??
+	DB.setValue(nodeNewCohort, "hptotal", "number", DB.getValue(nodeNewCohort, "hp", 0));
 end
 
 function addUnit(nodeChar, nodeUnit)
@@ -113,4 +108,11 @@ end
 function getCommanderNode(vCohort)
 	local nodeCohort = ActorManager.getCreatureNode(vCohort);
 	return DB.getChild(nodeCohort, "...");
+end
+
+function levelUpCohort(nodeCohort)
+	if HpManager then
+		HpManager.updateNpcHitDice(nodeCohort);
+	end
+	HpManagerFZ.updateNpcHitPoints(nodeCohort);
 end
