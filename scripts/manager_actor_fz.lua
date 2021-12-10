@@ -38,22 +38,6 @@ function getActorRecordTypeFromPath(sActorNodePath)
 	return result;
 end
 
-function getTypeAndNode(v)
-	local rActor = ActorManager.resolveActor(v);
-	if not rActor then 
-		return nil, nil; 
-	end
-
-	if not ActorManager.isPC(rActor) and FriendZone.isCohort(rActor) then
-		local nodeCreature = ActorManager.getCreatureNode(rActor);
-		if nodeCreature and nodeCreature.isOwner() then 
-			return "npc", nodeCreature;
-		end
-	end
-
-	return getTypeAndNodeOriginal(rActor);
-end
-
 function getSave(rActor, sSave)
 	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
 	if not nodeActor then
