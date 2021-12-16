@@ -58,6 +58,7 @@ function addCohort(nodeChar, nodeNPC)
 	end
 
 	DB.copyNode(nodeNPC, nodeNewCohort);
+	HpManagerFZ.updateNpcHitPoints(nodeNewCohort);
 	DB.setValue(nodeNewCohort, "hptotal", "number", DB.getValue(nodeNewCohort, "hp", 0));
 end
 
