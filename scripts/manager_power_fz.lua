@@ -40,7 +40,7 @@ function parsePower(sPowerName, sPowerDesc, bPC, bMagic)
 		sPowerDesc = sPowerDesc:gsub("your .+ attack modifier", encodeAttackModifierReplacement);
 		sPowerDesc = sPowerDesc:gsub("extra PB ?%w* damage", encodeExtraDamage);
 		sPowerDesc = sPowerDesc:gsub("takes PB ?%w* damage", encodeExtraDamage);
-		sPowerDesc = sPowerDesc:gsub("%d+ times PB", encodeNumericMultiplication);
+		sPowerDesc = sPowerDesc:gsub("[dgt][ea][aik][lne]s? %d+ times PB", encodeNumericMultiplication);
 		sPowerDesc = sPowerDesc:gsub("PBd%d+", encodeDiceMultiplication);
 	end
 
@@ -123,13 +123,14 @@ function encodeExtraDamage(sMatch)
 end
 
 function encodeNumericMultiplication(sMatch)
-	local nMod = tonumber(sMatch:match("^(%d+)"));
+	local sWord, sMod = sMatch:match("^(%w+) (%d+)");
+	local nMod = tonumber(sMod);
 	local nLengthDiff = sMatch:len() - 5;
 
 	nMod = nMod + MULTIPLY_PROFICIENCY_ENCODING * ENCODING_TYPE_BASE; -- Encode the fact that a swap has been made
 	nMod = nMod + ENCODING_OFFSET_BASE * nLengthDiff; -- Encode the offset difference
 
-	return tostring(nMod);
+	return sWord .. " " .. nMod;
 end
 
 function encodeDiceMultiplication(sMatch)
