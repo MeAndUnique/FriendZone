@@ -4,7 +4,6 @@
 --
 
 local getActorRecordTypeFromPathOriginal;
-local getTypeAndNodeOriginal;
 local getSaveOriginal;
 local getCheckOriginal;
 local getDefenseValueOriginal;
@@ -12,9 +11,6 @@ local getDefenseValueOriginal;
 function onInit()
 	getActorRecordTypeFromPathOriginal = ActorManager.getActorRecordTypeFromPath;
 	ActorManager.getActorRecordTypeFromPath = getActorRecordTypeFromPath;
-
-	getTypeAndNodeOriginal = ActorManager.getTypeAndNode;
-	ActorManager.getTypeAndNode = getTypeAndNode;
 
 	getSaveOriginal = ActorManager5E.getSave;
 	ActorManager5E.getSave = getSave;
