@@ -144,6 +144,10 @@ function encodeDiceMultiplication(sMatch)
 end
 
 function postProcessAttack(rAttack, nodeCohort, nodeCommander)
+	if not rAttack.modifier then
+		return 0;
+	end
+
 	local nType = 0;
 	local nOffset = 0;
 	nType, nOffset, rAttack.modifier = decodeMetadata(rAttack.modifier);
@@ -166,26 +170,32 @@ function postProcessDamageAndHeal(rDamage, nodeCohort, nodeCommander)
 	local nOffset = 0;
 	local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
 	for _, rClause in ipairs(rDamage.clauses) do
-		local nClauseOffset = 0;
-		nType, nClauseOffset, rClause.modifier = decodeMetadata(rClause.modifier);
-		nOffset = nOffset + nClauseOffset;
+		if rClause.modifier then
+			local nClauseOffset = 0;
+			nType, nClauseOffset, rClause.modifier = decodeMetadata(rClause.modifier);
+			nOffset = nOffset + nClauseOffset;
 
-		if nType == ADD_PROFICIENCY_ENCODING then
-			rClause.modifier = rClause.modifier + nProfBonus;
-		elseif nType == MULTIPLY_PROFICIENCY_ENCODING then
-				rClause.modifier = rClause.modifier * nProfBonus;
-		elseif nType == DICE_PROFICIENCY_ENCODING then
-			rClause.dice = {};
-			for nCount=1,nProfBonus do
-				table.insert(rClause.dice, "d" .. rClause.modifier);
+			if nType == ADD_PROFICIENCY_ENCODING then
+				rClause.modifier = rClause.modifier + nProfBonus;
+			elseif nType == MULTIPLY_PROFICIENCY_ENCODING then
+					rClause.modifier = rClause.modifier * nProfBonus;
+			elseif nType == DICE_PROFICIENCY_ENCODING then
+				rClause.dice = {};
+				for nCount=1,nProfBonus do
+					table.insert(rClause.dice, "d" .. rClause.modifier);
+				end
+				rClause.modifier = 0;
 			end
-			rClause.modifier = 0;
 		end
 	end
 	return nOffset
 end
 
 function postProcessSave(rSave, nodeCohort, nodeCommander)
+	if not rSave.savemod then
+		return 0;
+	end
+
 	local nType = 0;
 	local nOffset = 0;
 	nType, nOffset, rSave.savemod = decodeMetadata(rSave.savemod);
@@ -223,6 +233,9 @@ function postProcessEffect(rEffect, nodeCohort, nodeCommander)
 end
 
 function decodeMetadata(nValue)
+	if not nEncoding then
+		Debug.printstack()
+	end
 	local nType = 0;
 	local nOffset = 0;
 	local bNegative = false;
