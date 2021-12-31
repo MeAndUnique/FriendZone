@@ -24,7 +24,7 @@ end
 
 function getActorRecordTypeFromPath(sActorNodePath)
 	local result = getActorRecordTypeFromPathOriginal(sActorNodePath);
-	if result == "charsheet" then
+	if (not result) or (result == "charsheet") then
 		if sActorNodePath:match("%.cohorts%.") then
 			result = "npc";
 		elseif sActorNodePath:match("%.units%.") then

@@ -10,11 +10,6 @@ local nCommanderProfBonus = 0;
 function onInit()
 	performNPCRollOriginal = ActionSkill.performNPCRoll;
 	ActionSkill.performNPCRoll = performNPCRoll;
-
-	if CombatManagerKw then
-		addUnitOriginal = CombatManagerKw.addUnit;
-		CombatManagerKw.addUnit = addUnit;
-	end
 end
 
 function setCommanderProfBonus(nProfBonus)

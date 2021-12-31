@@ -233,9 +233,6 @@ function postProcessEffect(rEffect, nodeCohort, nodeCommander)
 end
 
 function decodeMetadata(nValue)
-	if not nEncoding then
-		Debug.printstack()
-	end
 	local nType = 0;
 	local nOffset = 0;
 	local bNegative = false;
