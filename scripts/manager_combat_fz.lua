@@ -1,13 +1,32 @@
+-- 
+-- Please see the license.txt file included with this distribution for 
+-- attribution and copyright information.
+--
+
+local centerOnTokenOriginal;
 local addNPCHelperOriginal;
 local addUnitOriginal;
 
 function onInit()
+	centerOnTokenOriginal = CombatManager.centerOnToken;
+	CombatManager.centerOnToken = centerOnToken;
+
 	addNPCHelperOriginal = CombatManager.addNPCHelper;
 	CombatManager.addNPCHelper = addNPCHelper;
 
 	if CombatManagerKw then
 		addUnitOriginal = CombatManagerKw.addUnit;
 		CombatManagerKw.addUnit = addUnit;
+	end
+end
+
+function centerOnToken(nodeEntry, bOpen)
+	centerOnTokenOriginal(nodeEntry, bOpen);
+
+	if not Session.IsHost and
+	FriendZone.isCohort(nodeEntry) and
+	DB.isOwner(ActorManager.getCreatureNode(nodeEntry)) then
+		ImageManager.centerOnToken(CombatManager.getTokenFromCT(nodeEntry), bOpen);
 	end
 end
 

@@ -16,8 +16,6 @@
 --add npc linking
 	--account for cohort spell slots
 	--mulitples and naming?
---add handler for PB changing
-	--add support for NPC stats that use PB
 
 local onShortcutDropOriginal;
 local notifyAddHolderOwnershipOriginal;
@@ -79,20 +77,12 @@ function addUnit(nodeChar, nodeUnit)
 end
 
 function isCohort(vRecord)
-	if not vRecord then
-		return false;
+	local rActor = ActorManager.resolveActor(vRecord);
+	if rActor and rActor.sCreatureNode and rActor.sCreatureNode:match("%.cohorts%.") then
+		return true;
 	end
 
-	local sType = type(vRecord);
-	if sType == "databasenode" then
-		return StringManager.startsWith(vRecord.getPath(), "charsheet");
-	elseif sType == "table" then
-		return StringManager.startsWith(vRecord.sCreatureNode, "charsheet");
-	elseif sType == "string" then
-		return StringManager.startsWith(vRecord, "charsheet");
-	else
-		return false;
-	end
+	return false;
 end
 
 function notifyAddHolderOwnership(node, sUserName, bOwner, bForceAccessRemoval)
