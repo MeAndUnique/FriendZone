@@ -8,12 +8,17 @@ local parsePowerOriginal;
 
 local nodeCohort;
 
-local ENCODING_TYPE_BASE = 10000;
+local ENCODING_LENGTH = 7; -- Number of digits in ENCODING_TYPE_BASE
+local ENCODING_TYPE_BASE = 1000000;
+local ENCODING_INDEX_BASE = 10000;
 local ENCODING_OFFSET_BASE = 100;
 local ADD_PROFICIENCY_ENCODING = 1;
 local COMMANDER_GROUP_ENCODING = 2;
 local MULTIPLY_PROFICIENCY_ENCODING = 3;
 local DICE_PROFICIENCY_ENCODING = 4;
+local MULTIPLY_LEVEL_ENCODING = 5;
+
+local aStoredNames = {};
 
 function onInit()
 	parseNPCPowerOriginal = PowerManager.parseNPCPower;
@@ -42,6 +47,7 @@ function parsePower(sPowerName, sPowerDesc, bPC, bMagic)
 		sPowerDesc = sPowerDesc:gsub("takes PB ?%w* damage", encodeExtraDamage);
 		sPowerDesc = sPowerDesc:gsub("[dgt][ea][aik][lne]s? %d+ times PB", encodeNumericMultiplication);
 		sPowerDesc = sPowerDesc:gsub("PBd%d+", encodeDiceMultiplication);
+		sPowerDesc = sPowerDesc:gsub("equal to %d+ times the %w+%'?s? level", encodeNumericLevelMultiplication);
 	end
 
 	local aMasterAbilities = parsePowerOriginal(sPowerName, sPowerDesc, bPC, bMagic)
@@ -67,9 +73,10 @@ function parsePower(sPowerName, sPowerDesc, bPC, bMagic)
 		end
 		
 		nodeCohort = nil;
+		aStoredNames = {};
 	end
 
-	return aMasterAbilities
+	return aMasterAbilities;
 end
 
 function encodeNumericAddition(sMatch)
@@ -78,9 +85,8 @@ function encodeNumericAddition(sMatch)
 	if bNegative then
 		nMod = -nMod;
 	end
-	local nLengthDiff = sMatch:len() - 6;
-	nMod = nMod + ADD_PROFICIENCY_ENCODING * ENCODING_TYPE_BASE; -- Encode the fact that a swap has been made
-	nMod = nMod + ENCODING_OFFSET_BASE * nLengthDiff; -- Encode the offset difference
+	local nLengthDiff = sMatch:len() - (1 + ENCODING_LENGTH);
+	nMod = nMod + calculateEncoding(ADD_PROFICIENCY_ENCODING, 0, nLengthDiff);
 	local sPrefix = "+";
 	if bNegative then
 		sPrefix = "-";
@@ -91,56 +97,65 @@ end
 function encodeDiceAddition(sMatch)
 	local sDice = sMatch:match("^%d+d%d+");
 	local nProfBonusStringLength = sMatch:len() - sDice:len() - 1;
-	local nLengthDiff = nProfBonusStringLength - 6;
-	local nMod = (ADD_PROFICIENCY_ENCODING + 1) * ENCODING_TYPE_BASE; -- add 1 because the offset difference will always be negative
-	nMod = nMod + ENCODING_OFFSET_BASE * nLengthDiff; -- Encode the offset difference
+	local nLengthDiff = nProfBonusStringLength - (1 + ENCODING_LENGTH);
+	local nMod = calculateEncoding(ADD_PROFICIENCY_ENCODING, 0, nLengthDiff);
 	return sDice .. " +" .. nMod;
 end
 
 function encodeNumericReplacement(sMatch)
 	local nMod = tonumber(sMatch:match("^a DC (%d+)"));
-	local nLengthDiff = sMatch:len() - 5 - 5;
-
-	nMod = nMod + ADD_PROFICIENCY_ENCODING * ENCODING_TYPE_BASE; -- Encode the fact that a swap has been made
-	nMod = nMod + ENCODING_OFFSET_BASE * nLengthDiff; -- Encode the offset difference
-
+	local nLengthDiff = sMatch:len() - 5 - ENCODING_LENGTH;
+	nMod = nMod + calculateEncoding(ADD_PROFICIENCY_ENCODING, 0, nLengthDiff);
 	return "a DC " .. nMod;
 end
 
 function encodeDcPlayerReplacement(sMatch)
-	return "DC " .. (COMMANDER_GROUP_ENCODING * ENCODING_TYPE_BASE) + (1 * ENCODING_OFFSET_BASE);
+	return "DC " .. calculateEncoding(COMMANDER_GROUP_ENCODING, 0, 6 - ENCODING_LENGTH);
 end
 
 function encodeAttackModifierReplacement(sMatch)
-	local nLengthDiff = sMatch:len() - 6;
-	local nMod = COMMANDER_GROUP_ENCODING * ENCODING_TYPE_BASE; -- Encode the fact that a swap has been made
-	nMod = nMod + ENCODING_OFFSET_BASE * nLengthDiff; -- Encode the offset difference
+	local nLengthDiff = sMatch:len() - 1 - ENCODING_LENGTH;
+	local nMod = calculateEncoding(COMMANDER_GROUP_ENCODING, 0, nLengthDiff);
 	return "+" .. nMod;
 end
 
 function encodeExtraDamage(sMatch)
-	return sMatch:gsub("PB", tostring((ADD_PROFICIENCY_ENCODING * ENCODING_TYPE_BASE) + ((ENCODING_OFFSET_BASE - 3) * ENCODING_OFFSET_BASE)));
+	return sMatch:gsub("PB", tostring(calculateEncoding(ADD_PROFICIENCY_ENCODING, 0, 2 - ENCODING_LENGTH)));
 end
 
 function encodeNumericMultiplication(sMatch)
 	local sWord, sMod = sMatch:match("^(%w+) (%d+)");
 	local nMod = tonumber(sMod);
-	local nLengthDiff = sMatch:len() - 5;
-
-	nMod = nMod + MULTIPLY_PROFICIENCY_ENCODING * ENCODING_TYPE_BASE; -- Encode the fact that a swap has been made
-	nMod = nMod + ENCODING_OFFSET_BASE * nLengthDiff; -- Encode the offset difference
-
+	local nLengthDiff = sMatch:len() - ENCODING_LENGTH;
+	nMod = nMod + calculateEncoding(MULTIPLY_PROFICIENCY_ENCODING, 0, nLengthDiff)
 	return sWord .. " " .. nMod;
 end
 
 function encodeDiceMultiplication(sMatch)
 	local nMod = tonumber(sMatch:match("%d+$"));
-	local nLengthDiff = sMatch:len() - 5;
-
-	nMod = nMod + DICE_PROFICIENCY_ENCODING * ENCODING_TYPE_BASE; -- Encode the fact that a swap has been made
-	nMod = nMod + ENCODING_OFFSET_BASE * nLengthDiff; -- Encode the offset difference
-
+	local nLengthDiff = sMatch:len() - ENCODING_LENGTH;
+	nMod = nMod + calculateEncoding(DICE_PROFICIENCY_ENCODING, 0, nLengthDiff);
 	return tostring(nMod);
+end
+
+function encodeNumericLevelMultiplication(sMatch)
+	local sMod, sClass = sMatch:match("(%d+) times the (%w+)");
+	local nMod = tonumber(sMod);
+	local nLengthDiff = sMatch:len() - 9 - ENCODING_LENGTH;
+
+	table.insert(aStoredNames, sClass);
+	local nIndex = #aStoredNames;
+
+	nMod = nMod + calculateEncoding(MULTIPLY_LEVEL_ENCODING, nIndex, nLengthDiff);
+
+	return "equal to " .. nMod;
+end
+
+function calculateEncoding(nType, nIndex, nOffset)
+	if nOffset < 0 then
+		nIndex = nIndex + 1; -- increment since negative offsets will subtract
+	end
+	return (nType * ENCODING_TYPE_BASE) + (nIndex * ENCODING_INDEX_BASE) + (nOffset * ENCODING_OFFSET_BASE);
 end
 
 function postProcessAttack(rAttack, nodeCohort, nodeCommander)
@@ -149,8 +164,9 @@ function postProcessAttack(rAttack, nodeCohort, nodeCommander)
 	end
 
 	local nType = 0;
+	local nIndex = 0;
 	local nOffset = 0;
-	nType, nOffset, rAttack.modifier = decodeMetadata(rAttack.modifier);
+	nType, nIndex, nOffset, rAttack.modifier = decodeMetadata(rAttack.modifier);
 
 	if nType == ADD_PROFICIENCY_ENCODING then
 		local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
@@ -167,12 +183,13 @@ end
 
 function postProcessDamageAndHeal(rDamage, nodeCohort, nodeCommander)
 	local nType = 0;
+	local nIndex = 0;
 	local nOffset = 0;
 	local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
 	for _, rClause in ipairs(rDamage.clauses) do
 		if rClause.modifier then
 			local nClauseOffset = 0;
-			nType, nClauseOffset, rClause.modifier = decodeMetadata(rClause.modifier);
+			nType, nIndex, nClauseOffset, rClause.modifier = decodeMetadata(rClause.modifier);
 			nOffset = nOffset + nClauseOffset;
 
 			if nType == ADD_PROFICIENCY_ENCODING then
@@ -185,6 +202,15 @@ function postProcessDamageAndHeal(rDamage, nodeCohort, nodeCommander)
 					table.insert(rClause.dice, "d" .. rClause.modifier);
 				end
 				rClause.modifier = 0;
+			elseif nType == MULTIPLY_LEVEL_ENCODING then
+				local sClass = aStoredNames[nIndex];
+				local nLevels;
+				if StringManager.contains(DataCommon.classes, sClass) then
+					nLevels = ActorManager5E.getClassLevel(nodeCommander, sClass);
+				else
+					nLevels = DB.getValue(nodeCommander, "level", 0);
+				end
+				rClause.modifier = rClause.modifier * nLevels;
 			end
 		end
 	end
@@ -197,8 +223,9 @@ function postProcessSave(rSave, nodeCohort, nodeCommander)
 	end
 
 	local nType = 0;
+	local nIndex = 0;
 	local nOffset = 0;
-	nType, nOffset, rSave.savemod = decodeMetadata(rSave.savemod);
+	nType, nIndex, nOffset, rSave.savemod = decodeMetadata(rSave.savemod);
 
 	if nType == ADD_PROFICIENCY_ENCODING then
 		local nodePowerGroup = findCommanderPowerGroup(nodeCohort, nodeCommander);
@@ -222,8 +249,8 @@ function postProcessEffect(rEffect, nodeCohort, nodeCommander)
 	local nOffset = 0;
 	local sEncodedDamage = rEffect.sName:match("DMG: (%d%d%d%d%d)");
 	if sEncodedDamage then
-		local nType, nValue;
-		nType, nOffset, nValue = decodeMetadata(tonumber(sEncodedDamage));
+		local nType, nIndex, nValue;
+		nType, nIndex, nOffset, nValue = decodeMetadata(tonumber(sEncodedDamage));
 		if nType == ADD_PROFICIENCY_ENCODING then
 			local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
 			rEffect.sName = rEffect.sName:gsub(sEncodedDamage, tostring(nValue + nProfBonus));
@@ -233,6 +260,7 @@ function postProcessEffect(rEffect, nodeCohort, nodeCommander)
 end
 
 function decodeMetadata(nValue)
+	local nIndex = 0;
 	local nType = 0;
 	local nOffset = 0;
 	local bNegative = false;
@@ -242,23 +270,23 @@ function decodeMetadata(nValue)
 		nEncoding = -nEncoding;
 	end
 	if nEncoding >= ENCODING_TYPE_BASE then
-		nValue = (nEncoding % ENCODING_OFFSET_BASE);
-		nEncoding = nEncoding - nValue;
+		nType = math.floor(nEncoding / ENCODING_TYPE_BASE);
+		nEncoding = nEncoding - (nType * ENCODING_TYPE_BASE);
 
-		nOffset = nEncoding % ENCODING_TYPE_BASE;
-		nType = nEncoding - nOffset;
-		nType = nType / ENCODING_TYPE_BASE;
+		nIndex = math.floor(nEncoding / ENCODING_INDEX_BASE);
+		nEncoding = nEncoding - (nIndex * ENCODING_INDEX_BASE)
 
-		nOffset = nOffset / ENCODING_OFFSET_BASE;
+		nOffset = math.floor(nEncoding / ENCODING_OFFSET_BASE);
 		if nOffset > (ENCODING_OFFSET_BASE / 2) then
 			nOffset = nOffset - ENCODING_OFFSET_BASE;
 		end
 
+		nValue = nEncoding % ENCODING_OFFSET_BASE;
 		if bNegative then
 			nValue = -nValue;
 		end
 	end
-	return nType, nOffset, nValue;
+	return nType, nIndex, nOffset, nValue;
 end
 
 function findCommanderPowerGroup(nodeCohort, nodeCommander)

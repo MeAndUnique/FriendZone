@@ -6,7 +6,6 @@
 local canHandleExtraHealthFieldsOriginal;
 
 function onInit()
-	--todo trigger reparsing?
 	canHandleExtraHealthFieldsOriginal = super.canHandleExtraHealthFields;
 	super.canHandleExtraHealthFields = canHandleExtraHealthFields;
 
