@@ -39,7 +39,6 @@ Icons made by Freepik from www.flaticon.com
 	<base>
 		<script name="ActionSkillFZ" file="scripts/manager_action_skill_fz.lua" />
 		<script name="ActorManagerFZ" file="scripts/manager_actor_fz.lua" />
-		<script name="CharManagerFZ" file="scripts/manager_char_fz.lua" />
 		<script name="CombatManagerFZ" file="scripts/manager_combat_fz.lua" />
 		<script name="FriendZone" file="scripts/friendzone.lua" />
 		<script name="HpManagerFZ" file="scripts/manager_hp_fz.lua" />

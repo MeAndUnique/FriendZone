@@ -29,7 +29,6 @@
 	</windowclass>
 
 	<windowclass name="npc_combat" merge="join">
-		<script file="campaign/scripts/npc_main.lua" />
 		<sheetdata>
 			<number_column name="hp">
 				<script>
