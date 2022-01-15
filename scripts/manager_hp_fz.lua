@@ -4,11 +4,15 @@
 --
 
 local getNpcHitDiceOriginal;
+local canHandleExtraHealthFieldsOriginal;
 
 function onInit()
 	if HpManager then
 		getNpcHitDiceOriginal = HpManager.getNpcHitDice;
 		HpManager.getNpcHitDice = getNpcHitDice;
+	
+		canHandleExtraHealthFieldsOriginal = HpManager.canHandleExtraHealthFields;
+		HpManager.canHandleExtraHealthFields = canHandleExtraHealthFields;
 	end
 end
 
@@ -80,4 +84,11 @@ function updateNpcHitPoints(nodeNPC)
 			end
 		end
 	end
+end
+
+function canHandleExtraHealthFields(nodeNPC)
+	if not canHandleExtraHealthFieldsOriginal() then
+		return FriendZone.isCohort(nodeNPC);
+	end
+	return true;
 end
