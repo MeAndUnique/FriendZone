@@ -3,11 +3,15 @@
 -- attribution and copyright information.
 --
 
+local showTurnMessageOriginal;
 local centerOnTokenOriginal;
 local addNPCHelperOriginal;
 local addUnitOriginal;
 
 function onInit()
+	showTurnMessageOriginal = CombatManager.showTurnMessage;
+	CombatManager.showTurnMessage = showTurnMessage;
+
 	centerOnTokenOriginal = CombatManager.centerOnToken;
 	CombatManager.centerOnToken = centerOnToken;
 
@@ -17,6 +21,26 @@ function onInit()
 	if CombatManagerKw then
 		addUnitOriginal = CombatManagerKw.addUnit;
 		CombatManagerKw.addUnit = addUnit;
+	end
+end
+
+function showTurnMessage(nodeEntry, bActivate, bSkipBell)
+	showTurnMessageOriginal(nodeEntry, bActivate, bSkipBell);
+
+	local sClass, sRecord = DB.getValue(nodeEntry, "link", "", "");
+	local bHidden = CombatManager.isCTHidden(nodeEntry);
+	if not bHidden and (sClass ~= "charsheet") then -- Allow non-character sheet turns as well for the sake of cohorts.
+		if bActivate and not bSkipBell and OptionsManager.isOption("RING", "on") then
+			if sRecord ~= "" then
+				local nodeCohort = DB.findNode(sRecord);
+				if nodeCohort then
+					local sOwner = nodeCohort.getOwner();
+					if sOwner then
+						User.ringBell(sOwner);
+					end
+				end
+			end
+		end
 	end
 end
 
