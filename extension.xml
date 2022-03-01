@@ -34,6 +34,9 @@ Icons made by Freepik from www.flaticon.com
 		<author>MeAndUnique</author>
 		<description>Adds support for companions of any sort.</description>
 		<loadorder>150</loadorder>
+		<ruleset>
+			<name>5E</name>
+		</ruleset>
 	</properties>
 
 	<base>
