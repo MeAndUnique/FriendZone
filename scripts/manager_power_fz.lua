@@ -247,7 +247,7 @@ end
 
 function postProcessEffect(rEffect, nodeCohort, nodeCommander)
 	local nOffset = 0;
-	local sEncodedDamage = rEffect.sName:match("DMG: (%d%d%d%d%d)");
+	local sEncodedDamage = rEffect.sName:match("DMG: ?(" .. string.rep("%d", ENCODING_LENGTH) .. ")");
 	if sEncodedDamage then
 		local nType, nIndex, nValue;
 		nType, nIndex, nOffset, nValue = decodeMetadata(tonumber(sEncodedDamage));
