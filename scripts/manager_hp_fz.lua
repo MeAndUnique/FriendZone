@@ -66,17 +66,28 @@ function updateNpcHitPoints(nodeNPC)
 						nLevels = DB.getValue(nodeCommander, "level", 0);
 					end
 
-					local nMod;
-					local sMod, sPerLevel = sLine:match("(%d?%d?) ?%+? ?([%d%w]+) times the");
-					if sMod then
+					local sAbility;
+					local sMod, sModOrAbility, sPerLevel = sLine:match("(%d?%d?) ?%+? ?t?h?e? %w*'?s? (%w*) m?o?d?i?f?i?e?r? ?%+? ?([%d%w]+) times the");
+
+					local nMod = 0;
+					if (sMod or "") ~= "" then
 						nMod = tonumber(sMod);
+						sAbility = sModOrAbility;
+					elseif sModOrAbility then
+						nMod = tonumber(sModOrAbility);
 					end
+
+					local nAbility = 0;
+					if sAbility and StringManager.contains(DataCommon.abilities, sAbility) then
+						nAbility = DB.getValue(nodeCommander, "abilities.".. sAbility .. ".bonus", 0);
+					end
+
 					if sPerLevel then
 						local nPerLevel = CharManager.convertSingleNumberTextToNumber(sPerLevel);
 						if (nPerLevel or 0) == 0 then
 							nPerLevel = tonumber(sPerLevel);
 						end
-						local nHP = nMod + (nPerLevel * nLevels);
+						local nHP = nMod + nAbility + (nPerLevel * nLevels);
 						DB.setValue(nodeNPC, "hp", "number", nHP);
 						break;
 					end
