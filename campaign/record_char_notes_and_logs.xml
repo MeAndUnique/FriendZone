@@ -49,6 +49,11 @@
 
 	<!-- charsheet_log_contents -->
 	<windowclass name="charsheet_notes_logs_contents">
+		<script>
+			function onInit()
+				logs_iedit = parentcontrol.window.logs_iedit;
+			end
+		</script>
 		<sheetdata>
 			<anchor_column name="columnanchor" />
 			
@@ -69,11 +74,6 @@
 					<left />
 					<right />
 				</anchored>
-				<script>
-					function onInit()
-						logs_iedit = window.parentcontrol.window.logs_iedit;
-					end
-				</script>
 				<class>charsheet_logs_contents</class>
 				<activate />
 				<fastinit />
