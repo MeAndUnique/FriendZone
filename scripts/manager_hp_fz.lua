@@ -98,7 +98,7 @@ function updateNpcHitPoints(nodeNPC)
 end
 
 function canHandleExtraHealthFields(nodeNPC)
-	if not canHandleExtraHealthFieldsOriginal() then
+	if not canHandleExtraHealthFieldsOriginal(nodeNPC) then
 		return FriendZone.isCohort(nodeNPC);
 	end
 	return true;
