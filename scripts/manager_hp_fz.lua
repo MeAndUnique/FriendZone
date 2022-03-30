@@ -58,7 +58,8 @@ function updateNpcHitPoints(nodeNPC)
 			for _,sLine in ipairs(aLines) do
 				sLine = sLine:gsub("</?%w>", ""):lower();
 				if StringManager.startsWith(sLine, "hit points:") then
-					local sClass = sLine:match("([%w]+)%'?s? level");
+					local sPerLevel, sClass = sLine:match("([%d%w]+) times the (.+) level");
+					sClass = sClass:gsub("^caster's ", ""):gsub("'s$", "");
 					local nLevels;
 					if StringManager.contains(DataCommon.classes, sClass) then
 						nLevels = ActorManager5E.getClassLevel(nodeCommander, sClass);
@@ -66,15 +67,12 @@ function updateNpcHitPoints(nodeNPC)
 						nLevels = DB.getValue(nodeCommander, "level", 0);
 					end
 
-					local sAbility;
-					local sMod, sModOrAbility, sPerLevel = sLine:match("(%d?%d?) ?%+? ?t?h?e? %w*'?s? (%w*) m?o?d?i?f?i?e?r? ?%+? ?([%d%w]+) times the");
+					local sAbility = sLine:match("(%w*) modifier");
+					local sMod = sLine:match("[ae][rq][eu]a?l?[s ]?t?o? (%d?%d) %+"); -- (are|equals|equal to) # +
 
 					local nMod = 0;
 					if (sMod or "") ~= "" then
 						nMod = tonumber(sMod);
-						sAbility = sModOrAbility;
-					elseif sModOrAbility then
-						nMod = tonumber(sModOrAbility);
 					end
 
 					local nAbility = 0;

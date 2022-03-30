@@ -7,7 +7,6 @@
 
 <root>
 	<windowclass name="charsheet_cohorts">
-		<!-- todo may need a dedicated script -->
 		<script>
 			function onInit()
 				if KingdomsAndWarfare then
@@ -69,7 +68,6 @@
 					<right offset="-10" />
 				</anchored>
 				<static textres="char_cohorts_label_cohorts" />
-				<!-- todo -->
 				<icons>char_cohorts</icons>
 			</label_charframetop>
 			<list_text name="cohortlist">
@@ -113,7 +111,6 @@
 					<right offset="-10" />
 				</anchored>
 				<static textres="char_cohorts_label_units" />
-				<!-- todo -->
 				<icons>char_cohorts</icons>
 				<invisible />
 			</label_charframetop>

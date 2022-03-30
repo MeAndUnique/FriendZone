@@ -3,20 +3,6 @@
 -- attribution and copyright information.
 --
 
---todo cleanup
---add list for npcs on charsheet
-	--what should each item look like? PS as template?
-	--what about temporary summons?
-		--conentratrion consideration?
-		--and those that get angry?
---add summon spell type
-	--distinguish between charsheet (summon individual) and record (summon instance)
-		--prevent... something? (finish your notes man)
-	--for instance, add to list?
---add npc linking
-	--account for cohort spell slots
-	--mulitples and naming?
-
 local onShortcutDropOriginal;
 local notifyAddHolderOwnershipOriginal;
 
