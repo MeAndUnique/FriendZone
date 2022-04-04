@@ -74,7 +74,7 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 
 	if FriendZone.isCohort(rDefender) then
 		local sAcText = DB.getValue(ActorManager.getCreatureNode(rDefender), "actext", "");
-		if sAcText:gmatch("+ ?PB") then
+		if sAcText:match("%+ ?PB") then
 			local nodeCommander = FriendZone.getCommanderNode(rDefender);
 			local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
 			if nProfbonus == 0 then
