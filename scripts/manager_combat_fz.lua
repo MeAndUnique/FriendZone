@@ -15,8 +15,8 @@ function onInit()
 	centerOnTokenOriginal = CombatManager.centerOnToken;
 	CombatManager.centerOnToken = centerOnToken;
 
-	addNPCHelperOriginal = CombatManager.addNPCHelper;
-	CombatManager.addNPCHelper = addNPCHelper;
+	addNPCHelperOriginal = CombatRecordManager.addNPCHelper;
+	CombatRecordManager.addNPCHelper = addNPCHelper;
 
 	if CombatManagerKw then
 		addUnitOriginal = CombatManagerKw.addUnit;
@@ -54,25 +54,22 @@ function centerOnToken(nodeEntry, bOpen)
 	end
 end
 
-function addNPCHelper(nodeNPC, sName)
-	local bIsCohort = FriendZone.isCohort(nodeNPC);
-	local nodeEntry, nodeLastMatch = addNPCHelperOriginal(nodeNPC, sName);
-	if nodeEntry and bIsCohort then
-		DB.setValue(nodeEntry, "link", "windowreference", "npc", nodeNPC.getPath());
-		DB.setValue(nodeEntry, "friendfoe", "string", "friend");
+function addNPCHelper(tCustom)
+	local bIsCohort = FriendZone.isCohort(tCustom.nodeRecord);
+	addNPCHelperOriginal(tCustom);
+	if tCustom.nodeCT and bIsCohort then
+		DB.setValue(tCustom.nodeCT, "link", "windowreference", "npc", tCustom.nodeRecord.getPath());
+		DB.setValue(tCustom.nodeCT, "friendfoe", "string", "friend");
 	end
-	return nodeEntry, nodeLastMatch;
 end
 
-function addUnit(sClass, nodeUnit, sName)
-	local nodeEntry = addUnitOriginal(sClass, nodeUnit, sName);
-	if nodeEntry then
-		local bIsCohort = FriendZone.isCohort(nodeUnit);
+function addUnit(tCustom)
+	addUnitOriginal(tCustom);
+	if tCustom.nodeCT then
+		local bIsCohort = FriendZone.isCohort(tCustom.nodeRecord);
 		if bIsCohort then
-			DB.setValue(nodeEntry, "link", "windowreference", "reference_unit", nodeUnit.getPath());
-			DB.setValue(nodeEntry, "friendfoe", "string", "friend");
+			DB.setValue(tCustom.nodeCT, "link", "windowreference", "reference_unit", tCustom.nodeRecord.getPath());
+			DB.setValue(tCustom.nodeCT, "friendfoe", "string", "friend");
 		end
 	end
-
-	return nodeEntry;
 end
