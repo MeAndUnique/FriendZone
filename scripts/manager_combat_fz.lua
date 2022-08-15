@@ -5,7 +5,8 @@
 
 local showTurnMessageOriginal;
 local centerOnTokenOriginal;
-local addNPCHelperOriginal;
+local onNPCPostAddOriginal;
+local onVehiclePostAddOriginal;
 local addUnitOriginal;
 
 function onInit()
@@ -15,8 +16,11 @@ function onInit()
 	centerOnTokenOriginal = CombatManager.centerOnToken;
 	CombatManager.centerOnToken = centerOnToken;
 
-	addNPCHelperOriginal = CombatRecordManager.addNPCHelper;
-	CombatRecordManager.addNPCHelper = addNPCHelper;
+	onNPCPostAddOriginal = CombatRecordManager.getRecordTypePostAddCallback("npc");
+	CombatRecordManager.setRecordTypePostAddCallback("npc", onNPCPostAdd);
+
+	onVehiclePostAddOriginal = CombatRecordManager.getRecordTypePostAddCallback("vehicle");
+	CombatRecordManager.setRecordTypePostAddCallback("vehicle", onVehiclePostAdd);
 
 	if CombatManagerKw then
 		addUnitOriginal = CombatManagerKw.addUnit;
@@ -54,22 +58,28 @@ function centerOnToken(nodeEntry, bOpen)
 	end
 end
 
-function addNPCHelper(tCustom)
-	local bIsCohort = FriendZone.isCohort(tCustom.nodeRecord);
-	addNPCHelperOriginal(tCustom);
-	if tCustom.nodeCT and bIsCohort then
-		DB.setValue(tCustom.nodeCT, "link", "windowreference", "npc", tCustom.nodeRecord.getPath());
-		DB.setValue(tCustom.nodeCT, "friendfoe", "string", "friend");
-	end
+function onNPCPostAdd(tCustom)
+	onNPCPostAddOriginal(tCustom);
+	trySetCohortLinkAndFaction(tCustom);
+end
+
+function onVehiclePostAdd(tCustom)
+	onVehiclePostAddOriginal(tCustom);
+	trySetCohortLinkAndFaction(tCustom);
 end
 
 function addUnit(tCustom)
 	addUnitOriginal(tCustom);
-	if tCustom.nodeCT then
-		local bIsCohort = FriendZone.isCohort(tCustom.nodeRecord);
-		if bIsCohort then
-			DB.setValue(tCustom.nodeCT, "link", "windowreference", "reference_unit", tCustom.nodeRecord.getPath());
-			DB.setValue(tCustom.nodeCT, "friendfoe", "string", "friend");
-		end
+	trySetCohortLinkAndFaction(tCustom);
+end
+
+function trySetCohortLinkAndFaction(tCustom)
+	local bIsCohort = FriendZone.isCohort(tCustom.nodeRecord);
+	if tCustom.nodeCT and bIsCohort then
+		local sClass = tCustom.sClass or LibraryData.getRecordDisplayClass(tCustom.sRecordType);
+		local nodeCommander = FriendZone.getCommanderNode(tCustom.nodeRecord);
+		local sFaction = ActorManager.getFaction(nodeCommander);
+		DB.setValue(tCustom.nodeCT, "link", "windowreference", sClass, tCustom.nodeRecord.getPath());
+		DB.setValue(tCustom.nodeCT, "friendfoe", "string", sFaction);
 	end
 end

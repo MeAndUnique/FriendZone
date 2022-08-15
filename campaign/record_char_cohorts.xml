@@ -20,9 +20,10 @@
 					local sClass, sRecord = draginfo.getShortcutData();
 					if sClass == "npc" then
 						FriendZone.addCohort(getDatabaseNode(), draginfo.getDatabaseNode());
-					end
-					if sClass == "reference_unit" then
+					elseif sClass == "reference_unit" then
 						FriendZone.addUnit(getDatabaseNode(), draginfo.getDatabaseNode());
+					elseif sClass == "vehicle" then
+						FriendZone.addVehicle(getDatabaseNode(), draginfo.getDatabaseNode());
 					end
 				end
 			end
@@ -71,8 +72,8 @@
 				<icons>char_cohorts</icons>
 			</label_charframetop>
 			<list_text name="cohortlist">
-				<anchored to="cohortstitle">
-					<top anchor="bottom" relation="relative" offset="5" />
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="5" />
 					<left />
 					<right />
 				</anchored>
@@ -82,31 +83,44 @@
 				<datasource>.cohorts</datasource>
 				<class>cohort_item</class>
 				<sortby mergerule="replace"><control>name</control></sortby>
-				<script>
-					function update()
-						local bEdit = (window.parentcontrol.window.cohorts_iedit.getValue() == 1);
-						for _,w in ipairs(getWindows()) do
-							w.idelete.setVisibility(bEdit);
-						end
-					end
-
-					function addEntry(bFocus)
-						local w = createWindow();
-						if bFocus then
-							w.name.setFocus();
-						end
-						return w;
-					end
-				</script>
+				<script file="campaign/scripts/cohort_list.lua" />
 			</list_text>
 			<button_iadd name="cohortlist_iadd">
 				<anchored to="cohortstitle" position="insidetopright" offset="5,0" />
 				<target>cohortlist</target>
 			</button_iadd>
 
+			<label_charframetop name="vehiclestitle">
+				<anchored height="20">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<static textres="char_cohorts_label_vehicles" />
+				<icons>char_cohorts</icons>
+			</label_charframetop>
+			<list_text name="vehiclelist">
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="5" />
+					<left />
+					<right />
+				</anchored>
+				<allowcreate />
+				<allowdelete />
+				<noscroll />
+				<datasource>.vehicles</datasource>
+				<class>vehicle_item</class>
+				<sortby mergerule="replace"><control>name</control></sortby>
+				<script file="campaign/scripts/cohort_list.lua" />
+			</list_text>
+			<button_iadd name="vehiclelist_iadd">
+				<anchored to="vehiclestitle" position="insidetopright" offset="5,0" />
+				<target>vehiclelist</target>
+			</button_iadd>
+
 			<label_charframetop name="unitstitle">
 				<anchored height="20">
-					<top parent="cohortstitle" anchor="bottom" relation="relative" offset="5" />
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
 					<left offset="15" />
 					<right offset="-10" />
 				</anchored>
@@ -115,8 +129,8 @@
 				<invisible />
 			</label_charframetop>
 			<list_text name="unitlist">
-				<anchored to="cohortstitle">
-					<top anchor="bottom" relation="relative" offset="5" />
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="5" />
 					<left />
 					<right />
 				</anchored>
@@ -126,22 +140,7 @@
 				<datasource>.units</datasource>
 				<class>unit_item</class>
 				<sortby mergerule="replace"><control>name</control></sortby>
-				<script>
-					function update()
-						local bEdit = (window.parentcontrol.window.cohorts_iedit.getValue() == 1);
-						for _,w in ipairs(getWindows()) do
-							w.idelete.setVisibility(bEdit);
-						end
-					end
-
-					function addEntry(bFocus)
-						local w = createWindow();
-						if bFocus then
-							w.name.setFocus();
-						end
-						return w;
-					end
-				</script>
+				<script file="campaign/scripts/cohort_list.lua" />
 				<invisible />
 			</list_text>
 			<button_iadd name="unitlist_iadd">
@@ -196,6 +195,38 @@
 					<right anchor="left" relation="relative" offset="-5" />
 				</anchored>
 				<class>reference_unit</class>
+				<readonly />
+			</linkcontrol>
+			<button_idelete name="idelete">
+				<anchored to="rightanchor">
+					<top />
+					<right anchor="left" offset="-5" />
+				</anchored>
+			</button_idelete>
+
+			<string_textlistitem name="name">
+				<anchored to="rightanchor">
+					<top />
+					<left parent="" offset="5" />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+			</string_textlistitem>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="vehicle_item">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<genericcontrol name="rightanchor">
+				<anchored position="insidetopright" offset="0,2" height="0" width="0" />
+			</genericcontrol>
+			<linkcontrol name="shortcut">
+				<anchored to="rightanchor" width="20" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-5" />
+				</anchored>
+				<class>vehicle</class>
 				<readonly />
 			</linkcontrol>
 			<button_idelete name="idelete">
