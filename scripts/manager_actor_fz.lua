@@ -29,6 +29,8 @@ function getActorRecordTypeFromPath(sActorNodePath)
 			result = "npc";
 		elseif sActorNodePath:match("%.units%.") then
 			result = "unit";
+		elseif sActorNodePath:match("%.vehicles%.") then
+			result = "vehicle";
 		end
 	end
 	return result;

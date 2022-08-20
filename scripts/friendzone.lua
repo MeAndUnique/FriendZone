@@ -1,9 +1,8 @@
--- 
--- Please see the license.txt file included with this distribution for 
+--
+-- Please see the license.txt file included with this distribution for
 -- attribution and copyright information.
 --
 
-local onShortcutDropOriginal;
 local notifyAddHolderOwnershipOriginal;
 
 function onInit()
@@ -62,9 +61,24 @@ function addUnit(nodeChar, nodeUnit)
 	DB.setValue(nodeNewUnit, "commander", "string", DB.getValue(nodeChar, "name", ""));
 end
 
+function addVehicle(nodeChar, nodeVehicle)
+	local nodeVehicles = nodeChar.createChild("vehicles");
+	if not nodeVehicles then
+		return;
+	end
+
+	local nodeNewVehicle = nodeVehicles.createChild();
+	if not nodeNewVehicle then
+		return;
+	end
+
+	DB.copyNode(nodeVehicle, nodeNewVehicle);
+end
+
 function isCohort(vRecord)
 	local rActor = ActorManager.resolveActor(vRecord);
-	if rActor and rActor.sCreatureNode and rActor.sCreatureNode:match("%.cohorts%.") then
+	if rActor and rActor.sCreatureNode
+	and (rActor.sCreatureNode:match("%.cohorts%.") or rActor.sCreatureNode:match("%.vehicles%.")) then
 		return true;
 	end
 

@@ -1,5 +1,5 @@
--- 
--- Please see the license.txt file included with this distribution for 
+--
+-- Please see the license.txt file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -41,7 +41,7 @@ function parsePower(sPowerName, sPowerDesc, bPC, bMagic)
 		sPowerDesc = sPowerDesc:gsub("[%+%-]%d+ %+ ?PB", encodeNumericAddition);
 		sPowerDesc = sPowerDesc:gsub("%d+d%d+ %+ ?PB", encodeDiceAddition);
 		sPowerDesc = sPowerDesc:gsub("a DC %d+ [p%+]l?u?s? ?PB", encodeNumericReplacement);
-		sPowerDesc = sPowerDesc:gsub("DC Player", encodeDcPlayerReplacement);
+		sPowerDesc = sPowerDesc:gsub("DC Players?", encodeDcPlayerReplacement);
 		sPowerDesc = sPowerDesc:gsub("your .+ attack modifier", encodeAttackModifierReplacement);
 		sPowerDesc = sPowerDesc:gsub("extra PB ?%w* damage", encodeExtraDamage);
 		sPowerDesc = sPowerDesc:gsub("takes PB ?%w* damage", encodeExtraDamage);
@@ -60,18 +60,18 @@ function parsePower(sPowerName, sPowerDesc, bPC, bMagic)
 			rAbility.startpos = rAbility.startpos + nOffset;
 
 			if rAbility.type == "attack" then
-				nOffset = nOffset + postProcessAttack(rAbility, nodeCohort, nodeCommander);
+				nOffset = nOffset + postProcessAttack(rAbility, nodeCommander);
 			elseif rAbility.type == "damage" or  rAbility.type == "heal" then
-				nOffset = nOffset + postProcessDamageAndHeal(rAbility, nodeCohort, nodeCommander);
+				nOffset = nOffset + postProcessDamageAndHeal(rAbility, nodeCommander);
 			elseif rAbility.type == "powersave" then
-				nOffset = nOffset + postProcessSave(rAbility, nodeCohort, nodeCommander);
+				nOffset = nOffset + postProcessSave(rAbility, nodeCommander);
 			elseif rAbility.type == "effect" then
-				nOffset = nOffset + postProcessEffect(rAbility, nodeCohort, nodeCommander);
+				nOffset = nOffset + postProcessEffect(rAbility, nodeCommander);
 			end
 
 			rAbility.endpos = rAbility.endpos + nOffset;
 		end
-		
+
 		nodeCohort = nil;
 		aStoredNames = {};
 	end
@@ -110,12 +110,16 @@ function encodeNumericReplacement(sMatch)
 end
 
 function encodeDcPlayerReplacement(sMatch)
-	return "DC " .. calculateEncoding(COMMANDER_GROUP_ENCODING, 0, 6 - ENCODING_LENGTH);
+	local nLengthDiff = sMatch:len() - 3 - ENCODING_LENGTH;
+	return "DC " .. calculateEncoding(COMMANDER_GROUP_ENCODING, 0, nLengthDiff);
 end
 
 function encodeAttackModifierReplacement(sMatch)
+	local sGroup = sMatch:lower():match("your (.+) attack");
+	table.insert(aStoredNames, sGroup);
+	local nIndex = #aStoredNames;
 	local nLengthDiff = sMatch:len() - 1 - ENCODING_LENGTH;
-	local nMod = calculateEncoding(COMMANDER_GROUP_ENCODING, 0, nLengthDiff);
+	local nMod = calculateEncoding(COMMANDER_GROUP_ENCODING, nIndex, nLengthDiff);
 	return "+" .. nMod;
 end
 
@@ -139,7 +143,7 @@ function encodeDiceMultiplication(sMatch)
 end
 
 function encodeNumericLevelMultiplication(sMatch)
-	local sMod, sClass = sMatch:match("(%d+) times the (%w+)");
+	local sMod, sClass = sMatch:lower():match("(%d+) times the (%w+)");
 	local nMod = tonumber(sMod);
 	local nLengthDiff = sMatch:len() - 9 - ENCODING_LENGTH;
 
@@ -158,7 +162,7 @@ function calculateEncoding(nType, nIndex, nOffset)
 	return (nType * ENCODING_TYPE_BASE) + (nIndex * ENCODING_INDEX_BASE) + (nOffset * ENCODING_OFFSET_BASE);
 end
 
-function postProcessAttack(rAttack, nodeCohort, nodeCommander)
+function postProcessAttack(rAttack, nodeCommander)
 	if not rAttack.modifier then
 		return 0;
 	end
@@ -172,7 +176,8 @@ function postProcessAttack(rAttack, nodeCohort, nodeCommander)
 		local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
 		rAttack.modifier = rAttack.modifier + nProfBonus;
 	elseif nType == COMMANDER_GROUP_ENCODING then
-		local nodePowerGroup = findCommanderPowerGroup(nodeCohort, nodeCommander);
+		local sGroup = aStoredNames[nIndex];
+		local nodePowerGroup = findCommanderPowerGroup(nodeCommander, sGroup);
 		if nodePowerGroup then
 			rAttack.modifier = calculateCommanderGroupAttackModifier(nodePowerGroup, nodeCommander);
 		end
@@ -181,7 +186,7 @@ function postProcessAttack(rAttack, nodeCohort, nodeCommander)
 	return nOffset;
 end
 
-function postProcessDamageAndHeal(rDamage, nodeCohort, nodeCommander)
+function postProcessDamageAndHeal(rDamage, nodeCommander)
 	local nType = 0;
 	local nIndex = 0;
 	local nOffset = 0;
@@ -217,7 +222,7 @@ function postProcessDamageAndHeal(rDamage, nodeCohort, nodeCommander)
 	return nOffset
 end
 
-function postProcessSave(rSave, nodeCohort, nodeCommander)
+function postProcessSave(rSave, nodeCommander)
 	if not rSave.savemod then
 		return 0;
 	end
@@ -228,7 +233,8 @@ function postProcessSave(rSave, nodeCohort, nodeCommander)
 	nType, nIndex, nOffset, rSave.savemod = decodeMetadata(rSave.savemod);
 
 	if nType == ADD_PROFICIENCY_ENCODING then
-		local nodePowerGroup = findCommanderPowerGroup(nodeCohort, nodeCommander);
+		-- Support for Superior Ferocity
+		local nodePowerGroup = findCommanderPowerGroup(nodeCommander);
 		if nodePowerGroup then
 			rSave.savemod = calculateCommanderGroupSaveDc(nodePowerGroup, nodeCommander);
 		else
@@ -236,7 +242,9 @@ function postProcessSave(rSave, nodeCohort, nodeCommander)
 			rSave.savemod = rSave.savemod + nProfBonus;
 		end
 	elseif nType == COMMANDER_GROUP_ENCODING then
-		local nodePowerGroup = findCommanderPowerGroup(nodeCohort, nodeCommander);
+		-- Tasha's templates typcially don't give either a class or a group, so Spell DC is assumed.
+		local nodePowerGroup = findCommanderPowerGroup(nodeCommander, "spell");
+		Debug.chat("group:",nodePowerGroup)
 		if nodePowerGroup then
 			rSave.savemod = calculateCommanderGroupSaveDc(nodePowerGroup, nodeCommander);
 		end
@@ -245,7 +253,7 @@ function postProcessSave(rSave, nodeCohort, nodeCommander)
 	return nOffset;
 end
 
-function postProcessEffect(rEffect, nodeCohort, nodeCommander)
+function postProcessEffect(rEffect, nodeCommander)
 	local nOffset = 0;
 	local sEncodedDamage = rEffect.sName:match("DMG: ?(" .. string.rep("%d", ENCODING_LENGTH) .. ")");
 	if sEncodedDamage then
@@ -289,12 +297,38 @@ function decodeMetadata(nValue)
 	return nType, nIndex, nOffset, nValue;
 end
 
-function findCommanderPowerGroup(nodeCohort, nodeCommander)
+function findCommanderPowerGroup(nodeCommander, sGroup)
+	local sClass;
+	if not sGroup then
+		sClass, sGroup = parseGroupAndClass();
+	end
+
+	if sGroup then
+		if sClass and not commanderHasClass(nodeCommander, sClass) then
+			return nil;
+		end
+
+		local nodeMatch = nil;
+		for _,nodeGroup in pairs(DB.getChildren(nodeCommander, "powergroup")) do
+			local sName = DB.getValue(nodeGroup, "name", ""):lower();
+			if sClass and sName:match("^" .. sGroup .. "s? %(" .. sClass .. "%)$") then
+				-- No need to continue searching after a specific match.
+				return nodeGroup;
+			elseif sName:match("^" .. sGroup .. "s?$") then
+				-- Hold on to a generic match and keep searching.
+				nodeMatch = nodeGroup;
+			end
+		end
+		return nodeMatch;
+	end
+end
+
+function parseGroupAndClass()
 	local sText = DB.getValue(nodeCohort, "text", "");
 	local aLines = StringManager.splitByPattern(sText, "<p>", true);
+	local sClass, sGroup;
 	for _,sLine in ipairs(aLines) do
 		sLine = sLine:gsub("</?%w>", ""):lower();
-		local sClass, sGroup;
 		if StringManager.startsWith(sLine, "saving throw dcs:") then
 			sClass, sGroup = sLine:lower():match("replace the dc with the (%w+)%'?s? (.+) save dc");
 		elseif StringManager.startsWith(sLine, "features:") then
@@ -302,35 +336,21 @@ function findCommanderPowerGroup(nodeCohort, nodeCommander)
 		elseif StringManager.startsWith(sLine, "actions:") then
 			sClass, sGroup = sLine:lower():match("with the (%w+)%'?s? actual (.+) attack modifier");
 		end
+	end
+	return sClass, sGroup;
+end
 
-		if sClass and sGroup then
-			local bFoundClass = false;
-			for _,nodeClass in pairs(DB.getChildren(nodeCommander, "classes")) do
-				if DB.getValue(nodeClass, "name", ""):lower() == sClass then
-					bFoundClass = true;
-					break;
-				end
-			end
-			if not bFoundClass then
-				return nil;
-			end
-			
-			local nodeMatch = nil;
-			for _,nodeGroup in pairs(DB.getChildren(nodeCommander, "powergroup")) do
-				local sName = DB.getValue(nodeGroup, "name", ""):lower();
-				if sName:match("^" .. sGroup .. "s? %(" .. sClass .. "%)$") then
-					return nodeGroup;
-				elseif sName:match("^" .. sGroup .. "s?$") then
-					nodeMatch = nodeGroup;
-				end
-			end
-			return nodeMatch;
+function commanderHasClass(nodeCommander, sClass)
+	for _,nodeClass in pairs(DB.getChildren(nodeCommander, "classes")) do
+		if DB.getValue(nodeClass, "name", ""):lower() == sClass then
+			return true;
 		end
 	end
+	return false;
 end
 
 function calculateCommanderGroupSaveDc(nodePowerGroup, nodeCommander)
-	local rCommander ActorManager.resolveActor(nodeCommander);
+	local rCommander = ActorManager.resolveActor(nodeCommander);
 	local sSaveDCStat = DB.getValue(nodePowerGroup, "savestat", "");
 	if sSaveDCStat == "" then
 		sSaveDCStat = DB.getValue(nodePowerGroup, "stat", "");

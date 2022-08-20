@@ -8,5 +8,12 @@
 <root>
 	<windowclass name="ct_entry" merge="join">
 		<script file="ct/scripts/ct_entry.lua" />
+		<sheetdata>
+			<hnx name="damagethreshold" />
+			<hsx name="damagevulnerabilities" />
+			<hsx name="damageresistances" />
+			<hsx name="damageimmunities" />
+			<hsx name="conditionimmunities" />
+		</sheetdata>
 	</windowclass>
 </root>

@@ -9,8 +9,8 @@ function onLinkChanged()
 	-- If a cohort NPC, then set up the links
 	local sClass, sRecord = link.getValue();
 	if FriendZone.isCohort(sRecord) then
-		if sClass == "npc" then
-			linkNPCFields();
+		if sClass == "npc" or sClass == "vehicle" then
+			linkNPCOrVehicleFields();
 		end
 		name.setLine(false);
 	end
@@ -18,7 +18,7 @@ function onLinkChanged()
 	super.onLinkChanged();
 end
 
-function linkNPCFields()
+function linkNPCOrVehicleFields()
 	local nodeChar = link.getTargetDatabaseNode();
 	if nodeChar then
 		name.setLink(nodeChar.createChild("name", "string"), true);
@@ -37,7 +37,7 @@ function linkNPCFields()
 		type.setLink(nodeChar.createChild("race", "string"));
 		size.setLink(nodeChar.createChild("size", "string"));
 		alignment.setLink(nodeChar.createChild("alignment", "string"));
-		
+
 		strength.setLink(nodeChar.createChild("abilities.strength.score", "number"), true);
 		dexterity.setLink(nodeChar.createChild("abilities.dexterity.score", "number"), true);
 		constitution.setLink(nodeChar.createChild("abilities.constitution.score", "number"), true);
@@ -45,8 +45,18 @@ function linkNPCFields()
 		wisdom.setLink(nodeChar.createChild("abilities.wisdom.score", "number"), true);
 		charisma.setLink(nodeChar.createChild("abilities.charisma.score", "number"), true);
 
-		init.setLink(nodeChar.createChild("abilities.dexterity.bonus", "number"), true);
+		if CombatManagerTF then
+			init.setLink(nodeChar.createChild("init", "number"), true);
+		else
+			init.setLink(nodeChar.createChild("abilities.dexterity.bonus", "number"), true);
+		end
 		ac.setLink(nodeChar.createChild("ac", "number"), true);
+		damagethreshold.setLink(nodeChar.createChild("damagethreshold", "number"), true);
 		speed.setLink(nodeChar.createChild("speed", "string"), true);
+
+		damagevulnerabilities.setLink(nodeChar.createChild("damagevulnerabilities", "string"), true);
+		damageresistances.setLink(nodeChar.createChild("damageresistances", "string"), true);
+		damageimmunities.setLink(nodeChar.createChild("damageimmunities", "string"), true);
+		conditionimmunities.setLink(nodeChar.createChild("conditionimmunities", "string"), true);
 	end
 end
