@@ -58,6 +58,14 @@ Icons made by Freepik from www.flaticon.com
 		<includefile source="graphics/graphics_tabs.xml" />
 		
 		<icon name="FriendZone_icon" file="graphics/icons/FriendZone.png" />
+
+		<script name="PowerUpFZ">
+			function onInit()
+				if PowerUp then
+					PowerUp.registerExtension("Friend Zone", "dev_version");
+				end
+			end
+		</script>
 	</base>
 
 	<announcement text="Friend Zone dev_version by MeAndUnique." icon="FriendZone_icon" font="emotefont" />
