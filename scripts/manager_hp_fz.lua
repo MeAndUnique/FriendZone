@@ -58,41 +58,49 @@ function updateNpcHitPoints(nodeNPC)
 			for _,sLine in ipairs(aLines) do
 				sLine = sLine:gsub("</?%w>", ""):lower();
 				if StringManager.startsWith(sLine, "hit points:") then
-					local sPerLevel, sClass = sLine:match("([%d%w]+) times the (.+) level");
-					sClass = sClass:gsub("^caster's ", ""):gsub("'s$", "");
-					local nLevels;
-					if StringManager.contains(DataCommon.classes, sClass) then
-						nLevels = ActorManager5E.getClassLevel(nodeCommander, sClass);
-					else
-						nLevels = DB.getValue(nodeCommander, "level", 0);
-					end
-
-					local sAbility = sLine:match("(%w*) modifier");
-					local sMod = sLine:match("[ae][rq][eu]a?l?[s ]?t?o? (%d?%d) %+"); -- (are|equals|equal to) # +
-
-					local nMod = 0;
-					if (sMod or "") ~= "" then
-						nMod = tonumber(sMod);
-					end
-
-					local nAbility = 0;
-					if sAbility and StringManager.contains(DataCommon.abilities, sAbility) then
-						nAbility = DB.getValue(nodeCommander, "abilities.".. sAbility .. ".bonus", 0);
-					end
-
-					if sPerLevel then
-						local nPerLevel = CharManager.convertSingleNumberTextToNumber(sPerLevel);
-						if (nPerLevel or 0) == 0 then
-							nPerLevel = tonumber(sPerLevel);
-						end
-						local nHP = nMod + nAbility + (nPerLevel * nLevels);
-						DB.setValue(nodeNPC, "hp", "number", nHP);
+					if tryParseHitPointLine(sLine, nodeNPC, nodeCommander) then
 						break;
 					end
 				end
 			end
 		end
 	end
+end
+
+function tryParseHitPointLine(sLine, nodeNPC, nodeCommander)
+	local sPerLevel, sClass = sLine:match("([%d%w]+) times the (.+) level");
+	if (not sPerLevel) or (not sClass) then
+		return false;
+	end
+
+	sClass = sClass:gsub("^caster's ", ""):gsub("'s$", "");
+	local nLevels;
+	if StringManager.contains(DataCommon.classes, sClass) then
+		nLevels = ActorManager5E.getClassLevel(nodeCommander, sClass);
+	else
+		nLevels = DB.getValue(nodeCommander, "level", 0);
+	end
+
+	local sAbility = sLine:match("(%w*) modifier");
+	local sMod = sLine:match("[ae][rq][eu]a?l?[s ]?t?o? (%d?%d) %+"); -- (are|equals|equal to) # +
+
+	local nMod = 0;
+	if (sMod or "") ~= "" then
+		nMod = tonumber(sMod);
+	end
+
+	local nAbility = 0;
+	if sAbility and StringManager.contains(DataCommon.abilities, sAbility) then
+		nAbility = DB.getValue(nodeCommander, "abilities.".. sAbility .. ".bonus", 0);
+	end
+
+	local nPerLevel = CharManager.convertSingleNumberTextToNumber(sPerLevel);
+	if (nPerLevel or 0) == 0 then
+		nPerLevel = tonumber(sPerLevel);
+	end
+	local nHP = nMod + nAbility + (nPerLevel * nLevels);
+	DB.setValue(nodeNPC, "hp", "number", nHP);
+	return true;
 end
 
 function canHandleExtraHealthFields(nodeNPC)
