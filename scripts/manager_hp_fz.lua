@@ -1,5 +1,5 @@
--- 
--- Please see the license.txt file included with this distribution for 
+--
+-- Please see the license.txt file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -10,7 +10,7 @@ function onInit()
 	if HpManager then
 		getNpcHitDiceOriginal = HpManager.getNpcHitDice;
 		HpManager.getNpcHitDice = getNpcHitDice;
-	
+
 		canHandleExtraHealthFieldsOriginal = HpManager.canHandleExtraHealthFields;
 		HpManager.canHandleExtraHealthFields = canHandleExtraHealthFields;
 	end

@@ -25,7 +25,9 @@ function linkNPCOrVehicleFields()
 		senses.setLink(nodeChar.createChild("senses", "string"), true);
 
 		if HpManager then
+			hp.setLink(nodeChar.createChild("hp", "number"));
 			hptotal.setLink(nodeChar.createChild("hptotal", "number"));
+			hpadjust.setLink(nodeChar.createChild("hpadjust", "number"));
 		else
 			hptotal.setLink(nodeChar.createChild("hp", "number"));
 		end
