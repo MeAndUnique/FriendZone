@@ -47,7 +47,8 @@ function getSave(rActor, sSave)
 		local sSaves = DB.getValue(nodeActor, "savingthrows", "");
 		if sSaves:lower():match(sSave:sub(1,3):lower() .. "[^,]+%+ ?pb") or hasProfBonusTrait(nodeActor, "saving throw") then
 			local nodeCommander = FriendZone.getCommanderNode(rActor);
-			local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
+			local rCommander = ActorManager.resolveActor(nodeCommander);
+			local nProfBonus = ActorManager5E.getAbilityScore(rCommander, "prf");
 			nMod = nMod + nProfBonus;
 		end
 	end
@@ -64,7 +65,8 @@ function getCheck(rActor, sCheck, sSkill)
 	local nMod, bADV, bDIS, sAddText = getCheckOriginal(rActor, sCheck, sSkill);
 	if sNodeType ~= "pc" and FriendZone.isCohort(rActor) and hasProfBonusTrait(nodeActor, "ability check") then
 		local nodeCommander = FriendZone.getCommanderNode(rActor);
-		local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
+		local rCommander = ActorManager.resolveActor(nodeCommander);
+		local nProfBonus = ActorManager5E.getAbilityScore(rCommander, "prf");
 		nMod = nMod + nProfBonus;
 	end
 
@@ -78,7 +80,8 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 		local sAcText = DB.getValue(ActorManager.getCreatureNode(rDefender), "actext", "");
 		if sAcText:match("%+ ?PB") then
 			local nodeCommander = FriendZone.getCommanderNode(rDefender);
-			local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
+			local rCommander = ActorManager.resolveActor(nodeCommander);
+			local nProfBonus = ActorManager5E.getAbilityScore(rCommander, "prf");
 			if nProfbonus == 0 then
 				local sCR = DB.getValue(nodeCommander, "cr");
 				if StringManager.isNumber(sCR) then
