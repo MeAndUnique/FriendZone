@@ -173,7 +173,8 @@ function postProcessAttack(rAttack, nodeCommander)
 	nType, nIndex, nOffset, rAttack.modifier = decodeMetadata(rAttack.modifier);
 
 	if nType == ADD_PROFICIENCY_ENCODING then
-		local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
+		local rCommander = ActorManager.resolveActor(nodeCommander);
+		local nProfBonus = ActorManager5E.getAbilityScore(rCommander, "prf");
 		rAttack.modifier = rAttack.modifier + nProfBonus;
 	elseif nType == COMMANDER_GROUP_ENCODING then
 		local sGroup = aStoredNames[nIndex];
@@ -190,7 +191,8 @@ function postProcessDamageAndHeal(rDamage, nodeCommander)
 	local nType = 0;
 	local nIndex = 0;
 	local nOffset = 0;
-	local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
+	local rCommander = ActorManager.resolveActor(nodeCommander);
+	local nProfBonus = ActorManager5E.getAbilityScore(rCommander, "prf");
 	for _, rClause in ipairs(rDamage.clauses) do
 		if rClause.modifier then
 			local nClauseOffset = 0;
@@ -238,13 +240,13 @@ function postProcessSave(rSave, nodeCommander)
 		if nodePowerGroup then
 			rSave.savemod = calculateCommanderGroupSaveDc(nodePowerGroup, nodeCommander);
 		else
-			local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
+			local rCommander = ActorManager.resolveActor(nodeCommander);
+			local nProfBonus = ActorManager5E.getAbilityScore(rCommander, "prf");
 			rSave.savemod = rSave.savemod + nProfBonus;
 		end
 	elseif nType == COMMANDER_GROUP_ENCODING then
 		-- Tasha's templates typcially don't give either a class or a group, so Spell DC is assumed.
 		local nodePowerGroup = findCommanderPowerGroup(nodeCommander, "spell");
-		Debug.chat("group:",nodePowerGroup)
 		if nodePowerGroup then
 			rSave.savemod = calculateCommanderGroupSaveDc(nodePowerGroup, nodeCommander);
 		end
@@ -260,7 +262,8 @@ function postProcessEffect(rEffect, nodeCommander)
 		local nType, nIndex, nValue;
 		nType, nIndex, nOffset, nValue = decodeMetadata(tonumber(sEncodedDamage));
 		if nType == ADD_PROFICIENCY_ENCODING then
-			local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
+			local rCommander = ActorManager.resolveActor(nodeCommander);
+			local nProfBonus = ActorManager5E.getAbilityScore(rCommander, "prf");
 			rEffect.sName = rEffect.sName:gsub(sEncodedDamage, tostring(nValue + nProfBonus));
 		end
 	end

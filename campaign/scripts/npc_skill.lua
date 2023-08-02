@@ -24,7 +24,8 @@ function action(draginfo)
 				nMultiplier = 1;
 			end
 			local nodeCommander = FriendZone.getCommanderNode(nodeNPC);
-			local nProfBonus = DB.getValue(nodeCommander, "profbonus", 0);
+			local rCommander = ActorManager.resolveActor(nodeCommander);
+			local nProfBonus = ActorManager5E.getAbilityScore(rCommander, "prf");
 			ActionSkillFZ.setCommanderProfBonus(nProfBonus * nMultiplier);
 		end
 	end
