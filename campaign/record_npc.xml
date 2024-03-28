@@ -1,31 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- 
-  Please see the license.txt file included with this distribution for 
+<!--
+  Please see the license.txt file included with this distribution for
   attribution and copyright information.
 -->
 
 <root>
 	<windowclass name="npc" merge="join">
-		<sheetdata>
-			<subwindow_record name="cohorts">
-				<class>charsheet_cohorts</class>
-				<invisible />
-			</subwindow_record>
-
-			<scrollbar_record>
-				<target>cohorts</target>
-			</scrollbar_record>
-
-			<tabs_charsheet name="tabs">
-				<script>
-					function onInit()
-						super.onInit();
-						addTab("cohorts", "tab_cohorts", false);
-					end
-				</script>
-			</tabs_charsheet>
-		</sheetdata>
+		<tab merge="add">
+			<name>cohorts</name>
+			<resource>tab_cohorts</resource>
+			<class>charsheet_cohorts</class>
+			<embed />
+		</tab>
 	</windowclass>
 
 	<windowclass name="npc_combat" merge="join">
